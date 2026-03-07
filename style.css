@@ -1,0 +1,613 @@
+/* 定义全局颜色变量，方便后续修改 */
+:root {
+  --bg-color: #1a1a1a;       /* 深灰色背景 */
+  --theme-color: #ff8c00;    /* 橙色主题色 */
+  --text-color: #eaeaea;     /* 浅灰色正文文字，比纯白更护眼 */
+  --nav-bg: #222222;         /* 导航栏背景色 */
+}
+
+/* 基础重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  /* 正文使用系统默认字体，标题使用复古字体 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 确保页脚能沉底 */
+}
+
+/* --- 导航栏样式 --- */
+header {
+  background-color: var(--nav-bg);
+  padding: 1rem 1rem;
+  border-bottom: 2px solid var(--theme-color);
+}
+
+.nav-container {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 复古风个性标题 */
+.site-title a {
+  font-family: "Courier New", Courier, monospace; /* 复古打字机字体 */
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--theme-color);
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+/* 桌面端导航菜单 */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--theme-color);
+}
+
+/* 汉堡菜单按钮（默认隐藏） */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--theme-color);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+/* --- 主内容区 --- */
+main {
+  flex: 1; /* 占据剩余空间，把页脚推到底部 */
+  max-width: 1500px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-top: 10vh;
+}
+
+.welcome-section h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.welcome-section p {
+  color: #a0a0a0;
+}
+
+/* --- 页脚样式 --- */
+footer {
+  text-align: center;
+  padding: 1.5rem 0;
+  background-color: var(--nav-bg);
+  border-top: 1px solid #333;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* --- 响应式设计 (适配手机端) --- */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block; /* 手机端显示汉堡菜单 */
+  }
+
+  .nav-links {
+    display: none; /* 默认隐藏菜单项 */
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 60px; /* 导航栏下方 */
+    left: 0;
+    background-color: var(--nav-bg);
+    padding: 1rem 0;
+    border-bottom: 2px solid var(--theme-color);
+  }
+
+  .nav-links.active {
+    display: flex; /* 点击后展开 */
+  }
+
+  .nav-links li {
+    text-align: center;
+    padding: 0.8rem 0;
+  }
+}
+/* --- 首页特定样式 --- */
+
+/* 左上角大标题 */
+.greeting {
+  font-size: 3.5rem;
+  font-weight: 800;
+  text-align: left;
+  margin-top: 2rem;
+  margin-bottom: 6rem;
+  color: var(--text-color);
+  letter-spacing: -1px;
+}
+
+/* 卡片容器：使用 CSS Grid 实现一行三个 */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 均分为三列 */
+  gap: 2rem; /* 卡片之间的间距 */
+  width: 100%;
+}
+
+/* 交互式卡片主体 */
+.card {
+  background-color: #262626; /* 比网页背景稍微亮一点的深灰，形成层次 */
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none; /* 去除链接自带的下划线 */
+  color: var(--text-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 动画平滑过渡 */
+  border: 1px solid #333;
+}
+
+/* 悬停特效 (Hover) */
+.card:hover {
+  transform: translateY(-8px) scale(1.02); /* 向上浮动并微量放大 */
+  box-shadow: 0 12px 24px rgba(255, 140, 0, 0.15); /* 橙色泛光阴影 */
+  border-color: var(--theme-color); /* 边框微微亮起橙色 */
+}
+
+/* 图标区域 (占据卡片上半部分) */
+.icon-wrapper {
+  height: 180px;
+  background-color: #1f1f1f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #333;
+}
+
+/* SVG 矢量图标样式 */
+.icon-wrapper svg {
+  width: 120px;
+  height: 120px;
+  fill: none; /* 内部透明 */
+  stroke: var(--theme-color); /* 橙色线条 */
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停时，图标也跟着有一点小动画 */
+.card:hover .icon-wrapper svg {
+  transform: scale(1.1);
+}
+
+/* 卡片文字内容区域 (占据卡片下半部分空白处) */
+.card-content {
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.card-content h2 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: var(--theme-color); /* 标题使用橙色 */
+}
+
+.card-content p {
+  font-size: 0.9rem;
+  color: #999;
+  line-height: 1.5;
+}
+
+/* --- 响应式设计补充 (适配手机端) --- */
+@media (max-width: 768px) {
+  .greeting {
+    font-size: 2.5rem; /* 手机端标题稍微缩小 */
+    margin-top: 1rem;
+  }
+  
+  .card-container {
+    grid-template-columns: 1fr; /* 手机端变成一列（竖向排列） */
+    gap: 1.5rem;
+  }
+}
+/* --- 闲拍页面专用样式 --- */
+
+.page-title {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--theme-color);
+}
+
+.empty-state {
+  color: #888;
+  margin-bottom: 3rem;
+  font-style: italic;
+}
+
+/* 瀑布流核心代码：利用 column-count */
+.masonry-gallery {
+  column-count: 3; /* 电脑端分为3列 */
+  column-gap: 1.5rem; /* 列与列的间距 */
+  width: 100%;
+}
+
+/* 单个照片卡片 */
+.photo-item {
+  break-inside: avoid; /* 防止卡片被硬生生截断分到两列 */
+  margin-bottom: 1.5rem;
+  background-color: #262626;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer; /* 鼠标放上去变成小手，提示可点击 */
+}
+
+.photo-item:hover {
+  border-color: var(--theme-color);
+  transform: translateY(-3px);
+}
+
+.gallery-img {
+  width: 100%;
+  display: block; /* 消除图片底部的默认空隙 */
+  transition: opacity 0.3s;
+}
+
+.photo-item:hover .gallery-img {
+  opacity: 0.85; /* 悬停时图片微微变暗，更有质感 */
+}
+
+/* 你自己输入的照片名字 */
+.photo-caption {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* --- 图片放大灯箱 (Lightbox) 样式 --- */
+.lightbox {
+  display: none; /* 默认隐藏 */
+  position: fixed;
+  z-index: 999; /* 保证在最顶层 */
+  padding-top: 5vh;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9); /* 半透明纯黑背景 */
+}
+
+.lightbox-content {
+  margin: auto;
+  display: block;
+  max-width: 90%;
+  max-height: 80vh;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.3); /* 橙色泛光 */
+}
+
+#lightbox-caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 15px 0;
+  font-size: 1.2rem;
+}
+
+/* 关闭按钮 */
+.close-lightbox {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.close-lightbox:hover,
+.close-lightbox:focus {
+  color: var(--theme-color);
+  text-decoration: none;
+}
+
+/* 手机端适配瀑布流 */
+@media (max-width: 768px) {
+  .masonry-gallery {
+    column-count: 1; /* 手机端变成单列上下滑动 */
+  }
+}
+/* --- 歌单页面专用样式 --- */
+
+/* 胶囊标签页 */
+.tabs-container {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.tab-btn {
+  background-color: #333;
+  color: #ccc;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 50px; /* 胶囊形状 */
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover, .tab-btn.active {
+  background-color: var(--theme-color);
+  color: #1a1a1a;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+/* 默认提示语 */
+.default-msg {
+  text-align: center;
+  margin-top: 6rem;
+  font-size: 1.2rem;
+  color: #666;
+  letter-spacing: 2px;
+}
+
+/* 一行四个的唱片墙网格 */
+.music-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  width: 100%;
+}
+
+/* 唱片卡片容器 */
+.record-card {
+  cursor: pointer;
+  text-align: center;
+}
+
+.song-title {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  transition: color 0.3s;
+}
+
+.record-card:hover .song-title {
+  color: var(--theme-color);
+}
+
+/* 封面与黑胶的黄金比例容器 */
+.album-cover-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3; /* 故意做宽，为右侧滑出的黑胶留出空间 */
+}
+
+/* 专辑封面 (正方形) */
+.album-cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 75%; /* 在 4:3 的容器里占 75% 宽度，刚好是个完美的正方形 */
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  z-index: 2; /* 盖在黑胶上面 */
+  box-shadow: 4px 0 12px rgba(0,0,0,0.8);
+  transition: transform 0.4s ease;
+}
+
+/* 纯 CSS 黑胶唱片 */
+.vinyl-disc {
+  position: absolute;
+  left: 5%;
+  top: 2.5%;
+  width: 70%;
+  height: 95%; /* 变成正圆 */
+  border-radius: 50%;
+  /* 用重复的径向渐变模拟黑胶的沟壑纹理 */
+  background: repeating-radial-gradient( #111, #111 4px, #262626 5px, #111 6px );
+  z-index: 1; /* 藏在封面下面 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 带有一点弹性的顺滑物理阻尼感 */
+}
+
+.vinyl-center {
+  width: 33%;
+  height: 33%;
+  background-color: var(--theme-color); /* 唱片中心的贴纸使用橙色主题色 */
+  border-radius: 50%;
+  border: 2px solid #000;
+}
+
+/* 悬停终极特效：封面左移，黑胶右移并旋转 */
+.record-card:hover .album-cover {
+  transform: translateX(-5%);
+}
+
+.record-card:hover .vinyl-disc {
+  transform: translateX(50%) rotate(180deg);
+}
+
+/* --- B站弹窗--- */
+.music-modal-content {
+  position: relative;
+  width: 85%;
+  max-width: 1100px;
+  min-height: 500px; /* 给弹窗一个最小高度，确保上下有足够的模糊留白 */
+  margin: 10vh auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* 边框改柔和，融入背景 */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  background-color: #1a1a1a; /* 兜底的深灰底色 */
+}
+
+/* 核心：动态模糊背景层 */
+.modal-blur-bg {
+  position: absolute;
+  top: -10%; left: -10%; width: 120%; height: 120%; /* 稍微放大，防止模糊后边缘露馅 */
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px) brightness(0.4); /* 25px模糊 + 压暗亮度(不抢文字风头) */
+  z-index: 0;
+  transition: background-image 0.5s ease;
+}
+
+/* 核心：内容层浮在背景之上 */
+.modal-content-wrapper {
+  position: relative;
+  z-index: 1; 
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+/* 左侧：让视频完美居中 */
+.modal-left {
+  flex: 3; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 视频垂直居中！ */
+  padding: 2rem; /* 给视频四周留出呼吸空间，露出模糊背景 */
+  background: rgba(0, 0, 0, 0.2); /* 微微加一点黑底，让左侧更有纵深感 */
+}
+
+.iframe-container {
+  width: 100%;
+  aspect-ratio: 16 / 9; 
+  border-radius: 8px; /* 给视频也加个小圆角，更精致 */
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); /* 视频加阴影，悬浮感拉满 */
+}
+
+.iframe-container iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-right {
+  flex: 2; 
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-right h2 {
+  color: #fff; /* 在彩色模糊背景上，纯白标题最清晰 */
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* 增加文字阴影，防止背景过亮时看不清 */
+}
+
+.modal-right p {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.8;
+  font-size: 1.05rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* 手机/平板端适配 */
+@media (max-width: 900px) {
+  .music-grid { grid-template-columns: repeat(2, 1fr); } 
+  .modal-content-wrapper { flex-direction: column; } /* 屏幕变窄时变成上下结构 */
+  .modal-left { padding: 1rem; }
+}
+
+@media (max-width: 600px) {
+  .music-grid { grid-template-columns: 1fr; } 
+}
+
+
+/* --- AI 页面全局框架 --- */
+.ai-container { display: flex; height: calc(100vh - 80px); max-width: 1400px; margin: 0 auto; }
+
+/* 左侧面板：还原 2.0 比例与风格，微调间距 */
+.control-panel { 
+    flex: 4; background: #1e1e1e; border-right: 1px solid #333; 
+    padding: 1.5rem 2rem; display: flex; flex-direction: column; 
+    gap: 1.2rem; /* 这里从 2.0 的 2.5rem 缩小到了 1.2rem，间距更紧凑 */
+}
+.knob-row { margin-bottom: 0.5rem; }
+
+.panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; }
+.status-led { width: 12px; height: 12px; border-radius: 50%; background: #444; border: 2px solid #111; }
+.status-led.active { background: var(--theme-color); box-shadow: 0 0 10px var(--theme-color); }
+.panel-title { font-size: 0.7rem; color: #555; letter-spacing: 2px; font-weight: bold; }
+
+/* 旋钮与横条指示灯 */
+.knob-label-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.8rem; color: #888; }
+.knob-value { color: var(--theme-color); font-weight: bold; font-family: 'Courier New', monospace; }
+.knob-control-area { display: flex; align-items: center; gap: 15px; }
+.knob { width: 48px; height: 48px; background: #111; border-radius: 50%; position: relative; cursor: ns-resize; border: 2px solid #333; }
+.knob-pointer { position: absolute; width: 2px; height: 16px; background: var(--theme-color); left: calc(50% - 1px); top: 4px; transform-origin: center 20px; transition: transform 0.1s; }
+.progress-container { flex: 1; height: 4px; background: #111; border-radius: 2px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--theme-color); transition: width 0.2s; }
+
+/* System Prompt 优化 */
+.system-prompt-section { display: flex; flex-direction: column; gap: 8px;/* flex-grow: 1;*/ }
+.system-prompt-section label { font-size: 0.8rem; color: #666; }
+#system-prompt { 
+    background: #262626; border: 1px solid var(--theme-color); color: #ddd; 
+    padding: 1rem; border-radius: 8px; width: 100%; height: 200px; resize: none; outline: none;
+}
+
+/* --- 右侧聊天界面：锁定 3.0 样式 --- */
+.chat-interface { flex: 6; display: flex; flex-direction: column; background: #1a1a1a; }
+.chat-history { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+.avatar { width: 40px; height: 40px; border-radius: 50% !important; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.ai-avatar { background: transparent; border: 1px solid #333; }
+.ai-avatar svg { width: 22px; fill: var(--theme-color); }
+.user-avatar { background: #333; border: 1px solid #444; }
+.chat-bubble { display: flex; gap: 12px; max-width: 85%; align-items: flex-start; }
+.chat-bubble.user { align-self: flex-end; flex-direction: row-reverse; }
+.bubble-content { padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; }
+.ai .bubble-content { color: #fff; background: rgba(255, 255, 255, 0.03); border: 1px solid #333; }
+.user .bubble-content { background: var(--theme-color); color: #000; }
+.chat-input-area { padding: 1.5rem 2rem; }
+.input-wrapper { display: flex; background: #262626; border-radius: 30px; padding: 5px 5px 5px 15px; border: 1px solid #333; }
+#user-input { flex: 1; background: transparent; border: none; color: white; outline: none; padding: 8px 0; }
+#send-btn { background: var(--theme-color); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+
+/* 隐藏 PC 端齿轮 */
+.settings-toggle { display: none; }
+@media (max-width: 768px) {
+    .settings-toggle { display: block; position: absolute; right: 70px; top: 15px; background: transparent; border: none; font-size: 1.5rem; }
+}

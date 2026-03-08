@@ -6,7 +6,7 @@ export async function onRequestPost(context) {
     const apiKey = context.env.ALIYUN_API_KEY; 
 
     // 2. 目标地址换成阿里云 (DashScope) 的兼容接口
-    const aiResponse = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", {
+    const aiResponse = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,

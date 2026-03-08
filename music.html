@@ -26,99 +26,15 @@
     <main>
         <h1 class="page-title" style="text-align: center;">我的歌单</h1>
 
-        <div class="tabs-container">
-            <button class="tab-btn" data-target="singer-tao">陶喆</button>
-            <button class="tab-btn" data-target="singer-jay">周杰伦</button>
-        </div>
+        <div class="tabs-container" id="tabs-container">
+            </div>
 
         <div id="default-msg" class="default-msg">
-            <p>~~🎵~~</p>
+            <p>~~🎵正在从打捞黑胶唱片🎵~~</p>
         </div>
-
-        <div id="singer-tao" class="music-grid" style="display: none;">
-            
-            <div class="record-card" data-bvid="BV1zD4y1W7Gq" data-title="黑色柳丁" data-desc="这是华语 R&B 划时代的一张专辑。极具爆发力的开场，奠定了整张专辑暗黑又深刻的基调。建议戴上耳机，感受贝斯和鼓点的完美结合。">
-                <div class="album-cover-wrapper">
-                    <img src="album\davidtao\1772888272366.png" alt="黑色柳丁" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">黑色柳丁</h3>
+        
+        <div id="music-grids-container">
             </div>
-
-            <div class="record-card" data-bvid="BV1GY411z7kR" data-title="I'm OK" data-desc="早期的经典之作，旋律无敌。">
-                <div class="album-cover-wrapper">
-                    <img src="album\davidtao\1772888267807.png" alt="I'm OK" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">I'm OK</h3>
-            </div>
-            
-            <div class="record-card" data-bvid="BV1mT411x7iQ" data-title="爱，很简单" data-desc="华语流行乐坛最经典的告白神曲之一。">
-                <div class="album-cover-wrapper">
-                    <img src="album\davidtao\1772888263353.png" alt="爱，很简单" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">爱，很简单</h3>
-            </div>
-
-            <div class="record-card" data-bvid="BV1Rv4y1q7kP" data-title="找自己" data-desc="怪叫的惊艳开场，自由而随性。">
-                <div class="album-cover-wrapper">
-                    <img src="album\davidtao\1772888267807.png" alt="找自己" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">找自己</h3>
-            </div>
-        </div>
-
-        <div id="singer-jay" class="music-grid" style="display: none;">
-            <div class="record-card" data-bvid="BV1Qyt6zQEzP" data-title="反方向的钟" data-desc="21世纪旋律说唱的开山之作。">
-                <div class="album-cover-wrapper">
-                    <img src="album\jaychou\1.png" alt="反方向的钟" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">反方向的钟</h3>
-            </div>
-
-            <div class="record-card" data-bvid="BV1JF67BmEdr" data-title="开不了口" data-desc="暗恋是开不了口的告白。">
-                <div class="album-cover-wrapper">
-                    <img src="album\jaychou\2.png" alt="开不了口" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">开不了口</h3>
-            </div>
-
-            <div class="record-card" data-bvid="BV1JF67BmEdr" data-title="暗号" data-desc="几点钟的方向有你传给我的暗号？">
-                <div class="album-cover-wrapper">
-                    <img src="album\jaychou\3.png" alt="暗号" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">暗号</h3>
-            </div>
-
-            <div class="record-card" data-bvid="BV1zDapzbE4P" data-title="暗号" data-desc="几点钟的方向有你传给我的暗号？">
-                <div class="album-cover-wrapper">
-                    <img src="album\jaychou\3.png" alt="暗号" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">暗号</h3>
-            </div>
-
-            <div class="record-card" data-bvid="BV1RrHqzvEhy" data-title="我不配" data-desc="典型的周氏情歌，没有爆发式的高音却能体现恰到好处的遗憾与悲伤。">
-                <div class="album-cover-wrapper">
-                    <img src="album\jaychou\8.png" alt="我不配" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">我不配</h3>
-            </div>
-
-            <div class="record-card" data-bvid="BV1io4y1z7r5" data-title="说了再见" data-desc="最温柔克制的唱腔藏着最痛苦的告别。">
-                <div class="album-cover-wrapper">
-                    <img src="album\jaychou\10.png" alt="说了再见" class="album-cover">
-                    <div class="vinyl-disc"><div class="vinyl-center"></div></div>
-                </div>
-                <h3 class="song-title">说了再见</h3>
-            </div>
-        </div>
     </main>
 
     <div id="music-modal" class="lightbox">

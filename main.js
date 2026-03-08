@@ -268,3 +268,120 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==========================================
+// 全栈进化：从云端数据库动态加载照片
+// ==========================================
+document.addEventListener('DOMContentLoaded', async () => {
+    const galleryContainer = document.getElementById('gallery-container');
+    if (!galleryContainer) return; // 如果不在闲拍页面，就不执行
+
+    try {
+        const response = await fetch('/api/photos');
+        const photos = await response.json();
+        
+        galleryContainer.innerHTML = ''; // 清空原本的内容
+        
+        photos.forEach(photo => {
+            const item = document.createElement('div');
+            item.className = 'photo-item';
+            // 利用 JS 动态拼接 HTML
+            item.innerHTML = `
+                <img src="${photo.image_url}" alt="${photo.caption}" class="gallery-img">
+                <div class="photo-caption">${photo.caption}</div>
+            `;
+            galleryContainer.appendChild(item);
+
+            // 给刚生成的照片绑定点击放大(Lightbox)事件
+            item.addEventListener('click', () => {
+                const lightbox = document.getElementById('lightbox');
+                document.getElementById('lightbox-img').src = photo.image_url;
+                document.getElementById('lightbox-caption').innerText = photo.caption;
+                lightbox.style.display = 'block';
+            });
+        });
+    } catch (error) {
+        console.error("获取照片失败:", error);
+        galleryContainer.innerHTML = '<p class="empty-state" style="color:red;">云端照片加载失败</p>';
+    }
+});
+
+// ==========================================
+// 全栈进化：从云端数据库动态加载音乐（支持无限歌手）
+// ==========================================
+document.addEventListener('DOMContentLoaded', async () => {
+    const tabsContainer = document.getElementById('tabs-container');
+    const gridsContainer = document.getElementById('music-grids-container');
+    if (!tabsContainer || !gridsContainer) return;
+
+    try {
+        const response = await fetch('/api/music');
+        const songs = await response.json();
+
+        // 1. 核心魔法：提取出所有不重复的歌手名字！
+        const singers = [...new Set(songs.map(song => song.singer))];
+
+        tabsContainer.innerHTML = '';
+        gridsContainer.innerHTML = '';
+
+        // 2. 循环每个歌手，生成他的专属按钮和唱片墙
+        singers.forEach((singer, index) => {
+            const targetId = `singer-${index}`;
+
+            // 生成顶部胶囊按钮
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn';
+            btn.innerText = singer;
+            btn.setAttribute('data-target', targetId);
+            tabsContainer.appendChild(btn);
+
+            // 生成对应的唱片墙隐藏容器
+            const gridDiv = document.createElement('div');
+            gridDiv.id = targetId;
+            gridDiv.className = 'music-grid';
+            gridDiv.style.display = 'none';
+
+            // 挑出属于这个歌手的所有歌，塞进他的墙里
+            const singerSongs = songs.filter(s => s.singer === singer);
+            singerSongs.forEach(song => {
+                const card = document.createElement('div');
+                card.className = 'record-card';
+                card.innerHTML = `
+                    <div class="album-cover-wrapper">
+                        <img src="${song.cover_url}" alt="${song.title}" class="album-cover">
+                        <div class="vinyl-disc"><div class="vinyl-center"></div></div>
+                    </div>
+                    <h3 class="song-title">${song.title}</h3>
+                `;
+                
+                // 绑定点击弹出 B站播放器的事件
+                card.addEventListener('click', () => {
+                    const musicModal = document.getElementById('music-modal');
+                    document.getElementById('bili-player').src = `https://player.bilibili.com/player.html?bvid=${song.bvid}&page=1&high_quality=1&danmaku=0`;
+                    document.getElementById('modal-song-title').innerText = song.title;
+                    document.getElementById('modal-song-desc').innerText = song.description;
+                    document.getElementById('modal-blur-bg').style.backgroundImage = `url('${song.cover_url}')`;
+                    musicModal.style.display = 'flex';
+                });
+                
+                gridDiv.appendChild(card);
+            });
+            gridsContainer.appendChild(gridDiv);
+        });
+
+        // 3. 重新激活标签切换功能
+        const newTabBtns = document.querySelectorAll('.tab-btn');
+        newTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                newTabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('default-msg').style.display = 'none';
+                document.querySelectorAll('.music-grid').forEach(grid => grid.style.display = 'none');
+                document.getElementById(btn.getAttribute('data-target')).style.display = 'grid';
+            });
+        });
+
+    } catch (error) {
+        console.error("音乐加载失败:", error);
+    }
+});

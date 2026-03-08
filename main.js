@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const desc = card.getAttribute('data-desc');
 
                 // 拼接 B站 iframe 专用链接（加入 autoplay=1 尝试自动播放）
-                biliPlayer.src = `http://player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0`;
+                biliPlayer.src = `https://player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0`;
                 
                 // 替换右侧文字
                 modalSongTitle.innerText = title;

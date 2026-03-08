@@ -1,7 +1,7 @@
 export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
-    const apiKey = context.env.GROQ_API_KEY; // 等下我们要在云端填这个
+    const apiKey = context.env.GROQ_API_KEY; 
 
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -13,7 +13,10 @@ export async function onRequestPost(context) {
     });
 
     const data = await groqResponse.text();
+    
+    //把 Groq 的真实状态码 (status) 原封不动还给前端
     return new Response(data, {
+      status: groqResponse.status, 
       headers: { "Content-Type": "application/json" }
     });
   } catch (e) {

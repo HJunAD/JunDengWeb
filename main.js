@@ -357,10 +357,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // 绑定点击弹出 B站播放器的事件
                 card.addEventListener('click', () => {
                     const musicModal = document.getElementById('music-modal');
+                    
+                    // 将数据库里的反斜杠 \ 强制全部转换成网页标准的正斜杠 /
+                    const safeCoverUrl = song.cover_url.replace(/\\/g, '/'); 
+                    
                     document.getElementById('bili-player').src = `https://player.bilibili.com/player.html?bvid=${song.bvid}&page=1&high_quality=1&danmaku=0`;
                     document.getElementById('modal-song-title').innerText = song.title;
                     document.getElementById('modal-song-desc').innerText = song.description;
-                    document.getElementById('modal-blur-bg').style.backgroundImage = `url('${song.cover_url}')`;
+                    
+                    // 使用安全路径渲染模糊背景
+                    document.getElementById('modal-blur-bg').style.backgroundImage = `url('${safeCoverUrl}')`;
+                    
                     musicModal.style.display = 'flex';
                 });
                 
@@ -383,5 +390,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error("音乐加载失败:", error);
+    }
+});
+
+// ==========================================
+// 全栈进化：全局弹窗管理器 (修复弹窗无法关闭的问题)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const musicModal = document.getElementById('music-modal');
+    const closeMusicBtn = document.getElementById('close-music-modal');
+    const biliPlayer = document.getElementById('bili-player');
+
+    // 独立出来的关闭逻辑：隐藏弹窗，并清空视频源停止播放
+    const closeMusicModal = () => {
+        if (musicModal) musicModal.style.display = 'none';
+        if (biliPlayer) biliPlayer.src = ""; 
+    };
+
+    // 1. 点击右上角 X 关闭
+    if (closeMusicBtn) {
+        closeMusicBtn.addEventListener('click', closeMusicModal);
+    }
+    
+    // 2. 点击黑底边缘关闭
+    if (musicModal) {
+        musicModal.addEventListener('click', (e) => {
+            if (e.target === musicModal) closeMusicModal();
+        });
     }
 });

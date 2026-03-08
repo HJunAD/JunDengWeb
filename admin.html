@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站长控制台 - JunDeng's Personal Web</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- 绝密控制台专属样式 --- */
+        body { justify-content: center; align-items: center; background-image: radial-gradient(circle at center, #222 0%, #111 100%); }
+        .admin-container { width: 90%; max-width: 600px; background: #262626; border-radius: 12px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); overflow: hidden; }
+        
+        .admin-header { background: #1f1f1f; padding: 1.5rem; text-align: center; border-bottom: 2px solid var(--theme-color); }
+        .admin-header h1 { color: var(--theme-color); font-family: "Courier New", monospace; font-size: 1.8rem; letter-spacing: 2px; }
+        
+        .admin-body { padding: 2.5rem 2rem; }
+        
+        /* 密码锁界面 */
+        #auth-section { text-align: center; }
+        #auth-section p { color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .auth-input { width: 80%; background: #111; border: 1px solid #444; color: var(--theme-color); padding: 12px 20px; border-radius: 30px; outline: none; text-align: center; font-family: monospace; font-size: 1.2rem; letter-spacing: 5px; margin-bottom: 1.5rem; transition: 0.3s; }
+        .auth-input:focus { border-color: var(--theme-color); box-shadow: 0 0 15px rgba(255, 140, 0, 0.2); }
+        .btn-primary { background: var(--theme-color); color: #111; border: none; padding: 12px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3); }
+
+        /* 后台表单界面 (默认隐藏) */
+        #dashboard-section { display: none; }
+        .admin-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; }
+        
+        .form-group { margin-bottom: 1.2rem; text-align: left; }
+        .form-group label { display: block; color: #aaa; margin-bottom: 0.5rem; font-size: 0.85rem; }
+        .form-control { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 6px; outline: none; transition: 0.3s; }
+        .form-control:focus { border-color: var(--theme-color); }
+        
+        .form-panel { display: none; }
+        .form-panel.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #sys-msg { margin-top: 1rem; font-size: 0.9rem; font-weight: bold; text-align: center; min-height: 20px;}
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>> SYSTEM_ADMIN_CONSOLE</h1>
+        </header>
+
+        <main class="admin-body">
+            <div id="auth-section">
+                <p>⚠️ 警告：检测到未授权访问，请输入站长指令口令。</p>
+                <input type="password" id="admin-pwd" class="auth-input" placeholder="••••••••">
+                <br>
+                <button id="unlock-btn" class="btn-primary">解除锁定 (UNLOCK)</button>
+            </div>
+
+            <div id="dashboard-section">
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-target="panel-photo">📷 发布闲拍</button>
+                    <button class="tab-btn" data-target="panel-music">🎵 上传音乐</button>
+                </div>
+
+                <div id="panel-photo" class="form-panel active">
+                    <div class="form-group">
+                        <label>照片链接 (URL)</label>
+                        <input type="text" id="photo-url" class="form-control" placeholder="例: photography/DSC0001.JPG">
+                    </div>
+                    <div class="form-group">
+                        <label>照片描述 (Caption)</label>
+                        <input type="text" id="photo-caption" class="form-control" placeholder="例: 武汉大学的樱花">
+                    </div>
+                    <button id="submit-photo" class="btn-primary" style="width: 100%; margin-top: 1rem;">确认写入数据库</button>
+                </div>
+
+                <div id="panel-music" class="form-panel">
+                    <div class="form-group">
+                        <label>歌手名 (Singer)</label>
+                        <input type="text" id="music-singer" class="form-control" placeholder="例: 林俊杰">
+                    </div>
+                    <div class="form-group">
+                        <label>歌曲名 (Title)</label>
+                        <input type="text" id="music-title" class="form-control" placeholder="例: 江南">
+                    </div>
+                    <div class="form-group">
+                        <label>B站视频号 (BVID)</label>
+                        <input type="text" id="music-bvid" class="form-control" placeholder="例: BV1xxxxx">
+                    </div>
+                    <div class="form-group">
+                        <label>专辑封面图 (Cover URL)</label>
+                        <input type="text" id="music-cover" class="form-control" placeholder="例: album/jj/jiangnan.png">
+                    </div>
+                    <div class="form-group">
+                        <label>一句话乐评 (Description)</label>
+                        <input type="text" id="music-desc" class="form-control" placeholder="风到这里就是粘...">
+                    </div>
+                    <button id="submit-music" class="btn-primary" style="width: 100%; margin-top: 1rem;">确认写入数据库</button>
+                </div>
+                
+                <div id="sys-msg"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. 简单的 UI 切换逻辑
+        document.getElementById('unlock-btn').addEventListener('click', () => {
+            const pwd = document.getElementById('admin-pwd').value;
+            if(!pwd) return;
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+        });
+
+        // 2. 表单面板切换逻辑
+        const tabBtns = document.querySelectorAll('.admin-tabs .tab-btn');
+        const panels = document.querySelectorAll('.form-panel');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+            });
+        });
+
+        // ==========================================
+        // 终极魔法：向前台发射数据
+        // ==========================================
+        const msgBox = document.getElementById('sys-msg');
+
+        // 3. 拦截【发布闲拍】按钮
+        document.getElementById('submit-photo').addEventListener('click', async () => {
+            const pwd = document.getElementById('admin-pwd').value;
+            const url = document.getElementById('photo-url').value.trim();
+            const caption = document.getElementById('photo-caption').value.trim();
+
+            if(!url || !caption) {
+                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 错误：缺少必要参数。'; return;
+            }
+
+            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 正在越权写入云端数据库...';
+
+            try {
+                const res = await fetch('/api/photos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwd, image_url: url, caption: caption })
+                });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    msgBox.style.color = '#00ff00'; msgBox.innerText = `> ${data.message}`;
+                    document.getElementById('photo-url').value = '';
+                    document.getElementById('photo-caption').value = '';
+                } else {
+                    msgBox.style.color = '#ff4444'; msgBox.innerText = `> 拦截：${data.error}`;
+                }
+            } catch (e) {
+                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 核心失联：网络请求失败！';
+            }
+        });
+
+        // 4. 拦截【上架音乐】按钮
+        document.getElementById('submit-music').addEventListener('click', async () => {
+            const pwd = document.getElementById('admin-pwd').value;
+            const singer = document.getElementById('music-singer').value.trim();
+            const title = document.getElementById('music-title').value.trim();
+            const bvid = document.getElementById('music-bvid').value.trim();
+            const cover = document.getElementById('music-cover').value.trim();
+            const desc = document.getElementById('music-desc').value.trim();
+
+            if(!singer || !title || !bvid || !cover) {
+                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 错误：关键参数缺失。'; return;
+            }
+
+            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 正在越权写入云端数据库...';
+
+            try {
+                const res = await fetch('/api/music', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        password: pwd, singer: singer, title: title, 
+                        bvid: bvid, cover_url: cover, description: desc 
+                    })
+                });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    msgBox.style.color = '#00ff00'; msgBox.innerText = `> ${data.message}`;
+                    // 清空所有输入框
+                    document.querySelectorAll('#panel-music input').forEach(input => input.value = '');
+                } else {
+                    msgBox.style.color = '#ff4444'; msgBox.innerText = `> 拦截：${data.error}`;
+                }
+            } catch (e) {
+                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 核心失联：网络请求失败！';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -177,9 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusLed = document.getElementById('status-led');
     const systemPromptInput = document.getElementById('system-prompt');
 
-    // API Key 
-    //const API_KEY = "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"; 
-    //const API_URL = "https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions"; 
     const API_URL = "/api/chat";
 
     if (sendBtn && userInput && chatHistory) { // 确保只在 AI 页面执行
@@ -214,31 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
             statusLed.classList.add('active');
             console.log(`> Jun.AI: 正在请求大模型神经网络 (当前创造力: ${currentTemp / 2 * 100}%)...`);
 
-            /*try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                        },
-                    body: JSON.stringify({
-                        // 使用 Groq 平台上极速且强大的 Llama 3 旗舰模型
-                        model: "llama-3.3-70b-versatile", 
-                        messages: [
-                            {"role": "system", "content": currentSystemPrompt},
-                            {"role": "user", "content": text}
-                        ],
-                        // 我们把之前为了排错注释掉的温度旋钮加回来！现在你可以重新控制创造力了
-                        temperature: currentTemp 
-                    })
-                });*/
                 try {
                 // 向你的个人云端后端发送请求
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                        // ⚠️ 绝不能出现 'Authorization': `Bearer ...` 这一行！
                     },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile", 

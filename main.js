@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // 核心逻辑：关闭弹窗时，必须清空 iframe 的 src，否则音乐会在后台一直放！
+        // 核心逻辑：关闭弹窗时，必须清空 iframe 的 src，否则音乐会在后台一直放
         const closeMusicModal = () => {
             musicModal.style.display = 'none';
             biliPlayer.src = ""; 
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
-    // Jun.AI 实验室核心逻辑 (滚轮调参 + 真实 API)
+    // Jun.AI 核心逻辑 (滚轮调参 + 真实 API)
     // ==========================================
 
     // --- 1. 旋钮滚轮精密控制逻辑 ---
@@ -170,16 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. 真实 API 接入逻辑 (Google Gemini) ---
+    // --- 2. 真实 API 接入逻辑 ---
     const sendBtn = document.getElementById('send-btn');
     const userInput = document.getElementById('user-input');
     const chatHistory = document.getElementById('chat-history');
     const statusLed = document.getElementById('status-led');
     const systemPromptInput = document.getElementById('system-prompt');
 
-    // ⚠️⚠️⚠️ 极其重要：在这里填入你申请到的真实 API Key ⚠️⚠️⚠️
+    // API Key 
     const API_KEY = "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"; 
-    const API_URL = "https://api.groq.com/openai/v1/chat/completions"; 
+    const API_URL = "https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions"; 
 
     if (sendBtn && userInput && chatHistory) { // 确保只在 AI 页面执行
         
@@ -192,11 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const text = userInput.value.trim();
             if (!text) return;
             
-            // 获取面板参数 (旋钮 0-1 的值乘以 2，适配 OpenAI/Gemini 标准)
+            // 获取面板参数
             const tempKnob = document.getElementById('knob-temp');
             const currentTemp = tempKnob ? parseFloat(tempKnob.dataset.value) * 2 : 1.4; 
             
-            // 获取人设，如果为空则使用你指定的默认学霸人设
+            // 获取人设，如果为空则使用你指定的默认人设
             const currentSystemPrompt = systemPromptInput && systemPromptInput.value.trim() !== "" 
                 ? systemPromptInput.value.trim() 
                 : "你是一个名叫 Jun.AI 的助手，热爱听1990-2019年的华语乐坛音乐、知道小部分乐理知识、尤其喜欢听R&B音乐、热爱摄影的低调的数学学霸，回复温柔幽默。";
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
-                // 核心排错升级：如果报错，把具体原因抓出来！
+                // 核心排错：如果报错，把具体原因抓出来
                 if (!response.ok) {
                     const errorDetails = await response.json();
                     console.error("> Jun.AI 抓到的详细错误信息:", errorDetails);

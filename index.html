@@ -22,7 +22,20 @@
                 <li><a href="music.html">我的歌单</a></li>
                 <li><a href="ai.html">我的AI</a></li>
             </ul>
-        </nav>
+
+            <div class="user-auth-area" id="user-auth-area">
+                <button class="auth-btn" id="login-trigger-btn">登录 / 注册</button>
+
+                <div class="user-profile-menu" id="user-profile-menu" style="display: none;">
+                    <img src="" alt="Avatar" class="nav-avatar" id="nav-avatar">
+                    <div class="dropdown-menu">
+                        <span class="nav-nickname" id="nav-nickname">游客</span>
+                        <hr>
+                        <button id="logout-btn">🚪 退出系统</button>
+                    </div>
+                </div>
+            </div>
+            </nav>
     </header>
 
     <main>
@@ -79,6 +92,22 @@
         <p>&copy; 2026 JunDeng's Personal Web</p>
     </footer>
 
+    <div id="auth-modal" class="auth-modal-overlay">
+        <div class="auth-modal-box">
+            <button class="close-auth-btn" id="close-auth-btn">×</button>
+            <h2 class="auth-title">> 身份验证系统</h2>
+            <p class="auth-subtitle">输入代号与密钥。若检测为新代号，系统将自动注册并生成专属头像。</p>
+
+            <div class="auth-form">
+                <input type="text" id="auth-username" class="auth-input" placeholder="输入代号 (Username)" autocomplete="off">
+                <input type="password" id="auth-password" class="auth-input" placeholder="输入密钥 (Password)">
+                
+                <button id="auth-submit-btn" class="auth-submit-btn">验证 / 注册 (ENTER)</button>
+                <p id="auth-msg" class="auth-msg"></p>
+            </div>
+        </div>
+    </div>
+    
     <script src="main.js"></script>
 </body>
 </html>

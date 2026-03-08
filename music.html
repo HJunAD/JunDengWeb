@@ -20,6 +20,19 @@
                 <li><a href="music.html" style="color: var(--theme-color);">我的歌单</a></li>
                 <li><a href="ai.html">我的AI</a></li>
             </ul>
+            
+            <div class="user-auth-area" id="user-auth-area">
+                <button class="auth-btn" id="login-trigger-btn">登录 / 注册</button>
+
+                <div class="user-profile-menu" id="user-profile-menu" style="display: none;">
+                    <img src="" alt="Avatar" class="nav-avatar" id="nav-avatar">
+                    <div class="dropdown-menu">
+                        <span class="nav-nickname" id="nav-nickname">游客</span>
+                        <hr>
+                        <button id="logout-btn">🚪 退出系统</button>
+                    </div>
+                </div>
+            </div>
         </nav>
     </header>
 
@@ -32,7 +45,7 @@
         <div id="default-msg" class="default-msg">
             <p>~~🎵正在从打捞黑胶唱片🎵~~</p>
         </div>
-        
+
         <div id="music-grids-container">
             </div>
     </main>
@@ -53,6 +66,20 @@
                     <h2 id="modal-song-title">歌曲名</h2>
                     <p id="modal-song-desc">这是歌曲描述。</p>
                 </div>
+                
+                <div class="modal-content-wrapper">
+                    <div class="modal-left"> ... </div>
+                    <div class="modal-right"> ... </div>
+    
+                    <div class="embedded-comments" id="music-comments">
+                        <div class="cmt-list" id="music-cmt-list"></div>
+                        <div class="cmt-input-group">
+                            <textarea id="music-cmt-input" placeholder="聊聊这首歌..."></textarea>
+                            <button class="cmt-send-btn" id="music-cmt-send">发送</button>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>

@@ -419,3 +419,193 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// ==========================================
+// 全栈进化：赛博大管家 (身份验证与状态管理)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 抓取 UI 元素
+    const authArea = document.getElementById('user-auth-area');
+    if (!authArea) return; // 如果当前页面没有加上右上角 UI，就不执行
+
+    const loginTriggerBtn = document.getElementById('login-trigger-btn');
+    const profileMenu = document.getElementById('user-profile-menu');
+    const navAvatar = document.getElementById('nav-avatar');
+    const navNickname = document.getElementById('nav-nickname');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const authModal = document.getElementById('auth-modal');
+    const closeAuthBtn = document.getElementById('close-auth-btn');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const usernameInput = document.getElementById('auth-username');
+    const passwordInput = document.getElementById('auth-password');
+    const authMsg = document.getElementById('auth-msg');
+
+    // --- 1. 核心状态机：检查本地保险箱有没有“通行证” ---
+    const checkLoginState = () => {
+        // 从浏览器的 LocalStorage 中读取用户信息
+        const savedUser = localStorage.getItem('jundeng_user');
+        
+        if (savedUser) {
+            // 解析通行证数据
+            const user = JSON.parse(savedUser);
+            // 切换为已登录 UI
+            loginTriggerBtn.style.display = 'none';
+            profileMenu.style.display = 'block';
+            navAvatar.src = user.avatar_url;
+            navNickname.innerText = user.username;
+        } else {
+            // 切换为未登录 UI
+            loginTriggerBtn.style.display = 'block';
+            profileMenu.style.display = 'none';
+        }
+    };
+
+    // 网页一加载，立刻检查状态
+    checkLoginState();
+
+    // --- 2. 弹窗控制逻辑 ---
+    // 点击右上角按钮打开弹窗
+    if (loginTriggerBtn) {
+        loginTriggerBtn.addEventListener('click', () => {
+            authModal.style.display = 'flex';
+        });
+    }
+
+    // 关闭弹窗并清空密码框
+    const closeAuthModal = () => {
+        authModal.style.display = 'none';
+        passwordInput.value = ''; 
+        authMsg.innerText = '';
+    };
+
+    if (closeAuthBtn) closeAuthBtn.addEventListener('click', closeAuthModal);
+    
+    // 点击黑底也能关闭
+    if (authModal) {
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) closeAuthModal();
+        });
+    }
+
+    // --- 3. 终极魔法：向云端发起验证/注册请求 ---
+    if (authSubmitBtn) {
+        authSubmitBtn.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // 基础拦截
+            if (!username || !password) {
+                authMsg.style.color = '#ff4444';
+                authMsg.innerText = '> 错误：请输入代号与密钥。';
+                return;
+            }
+
+            authMsg.style.color = 'var(--theme-color)';
+            authMsg.innerText = '> 正在连接云端核对身份...';
+            authSubmitBtn.disabled = true; // 锁定按钮防连点
+
+            try {
+                // 呼叫咱们刚刚写的 Cloudflare 后端接口
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, password: password })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    // ✅ 登录或注册成功！
+                    authMsg.style.color = '#00ff00';
+                    authMsg.innerText = '> ' + data.message;
+                    
+                    // 颁发通行证：把账号和头像锁进本地浏览器
+                    localStorage.setItem('jundeng_user', JSON.stringify({
+                        username: username,
+                        avatar_url: data.avatar_url
+                    }));
+
+                    // 延迟 1 秒后自动关闭弹窗并刷新右上角 UI
+                    setTimeout(() => {
+                        checkLoginState();
+                        closeAuthModal();
+                        authSubmitBtn.disabled = false;
+                    }, 1000);
+                    
+                } else {
+                    // ❌ 密码错误等拦截
+                    authMsg.style.color = '#ff4444';
+                    authMsg.innerText = '> 拦截：' + data.error;
+                    authSubmitBtn.disabled = false;
+                }
+            } catch (error) {
+                authMsg.style.color = '#ff4444';
+                authMsg.innerText = '> 核心失联：网络请求失败！';
+                authSubmitBtn.disabled = false;
+            }
+        });
+        
+        // 支持密码框里按回车直接提交
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') authSubmitBtn.click();
+        });
+    }
+
+    // --- 4. 退出登录逻辑 ---
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            // 销毁通行证
+            localStorage.removeItem('jundeng_user');
+            // 恢复右上角按钮
+            checkLoginState();
+        });
+    }
+});
+
+// ==========================================
+// 全栈进化：局部化评论加载逻辑
+// ==========================================
+const loadLocalComments = async (targetId, listElement) => {
+    listElement.innerHTML = '<p style="text-align:center;color:#444;font-size:0.8rem;">同步中...</p>';
+    try {
+        const res = await fetch(`/api/comments?target_id=${encodeURIComponent(targetId)}`);
+        const comments = await res.json();
+        listElement.innerHTML = comments.length ? '' : '<p style="text-align:center;color:#444;font-size:0.8rem;">暂无共鸣</p>';
+        comments.forEach(cmt => {
+            const div = document.createElement('div');
+            div.className = 'cmt-item';
+            div.innerHTML = `<img src="${cmt.avatar_url}" class="cmt-avatar">
+                <div class="cmt-info">
+                    <div class="cmt-user-line"><span class="cmt-name">${cmt.username}</span><span class="cmt-ip">IP: ${cmt.ip_location}</span></div>
+                    <p class="cmt-text">${cmt.content}</p>
+                </div>`;
+            listElement.appendChild(div);
+        });
+    } catch (e) { console.error(e); }
+};
+
+// 绑定音乐页面的互动按钮
+const musicTrigger = document.getElementById('music-comment-trigger');
+if (musicTrigger) {
+    musicTrigger.addEventListener('click', () => {
+        const commentsArea = document.getElementById('music-comments');
+        const list = document.getElementById('music-cmt-list');
+        const bvid = new URL(document.getElementById('bili-player').src).searchParams.get('bvid');
+        
+        commentsArea.classList.toggle('active'); // 向左弹出
+        if (commentsArea.classList.contains('active')) loadLocalComments(bvid, list);
+    });
+}
+
+// 绑定照片页面的互动按钮
+const photoTrigger = document.getElementById('photo-comment-trigger');
+if (photoTrigger) {
+    photoTrigger.addEventListener('click', () => {
+        const commentsArea = document.getElementById('photo-comments');
+        const list = document.getElementById('photo-cmt-list');
+        const imgSrc = document.getElementById('lightbox-img').src;
+        
+        commentsArea.classList.toggle('active'); // 向左弹出
+        if (commentsArea.classList.contains('active')) loadLocalComments(imgSrc, list);
+    });
+}

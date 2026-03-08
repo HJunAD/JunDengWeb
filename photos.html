@@ -19,6 +19,19 @@
                 <li><a href="photos.html" style="color: var(--theme-color);">我的闲拍</a></li> <li><a href="music.html">我的歌单</a></li>
                 <li><a href="ai.html">我的AI</a></li>
             </ul>
+
+            <div class="user-auth-area" id="user-auth-area">
+                <button class="auth-btn" id="login-trigger-btn">登录 / 注册</button>
+
+                <div class="user-profile-menu" id="user-profile-menu" style="display: none;">
+                    <img src="" alt="Avatar" class="nav-avatar" id="nav-avatar">
+                    <div class="dropdown-menu">
+                        <span class="nav-nickname" id="nav-nickname">游客</span>
+                        <hr>
+                        <button id="logout-btn">🚪 退出系统</button>
+                    </div>
+                </div>
+            </div>
         </nav>
     </header>
 
@@ -32,8 +45,20 @@
 
     <div id="lightbox" class="lightbox">
         <span class="close-lightbox">&times;</span>
-        <img class="lightbox-content" id="lightbox-img">
-        <div id="lightbox-caption"></div>
+        <div class="lightbox-main-container">
+            <div class="lightbox-left">
+                <img class="lightbox-content" id="lightbox-img">
+                <div id="lightbox-caption"></div>
+            </div>
+        
+            <div class="embedded-comments" id="photo-comments">
+                <div class="cmt-list" id="photo-cmt-list"></div>
+                <div class="cmt-input-group">
+                    <textarea id="photo-cmt-input" placeholder="此刻的想法..."></textarea>
+                    <button class="cmt-send-btn" id="photo-cmt-send">评论</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>

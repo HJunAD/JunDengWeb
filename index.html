@@ -102,6 +102,23 @@
                 <input type="text" id="auth-username" class="auth-input" placeholder="输入代号 (Username)" autocomplete="off">
                 <input type="password" id="auth-password" class="auth-input" placeholder="输入密钥 (Password)">
                 
+                <div class="avatar-selector-container">
+                    <p class="selector-title">>> 若为新代号，请选择专属化身 (老访客可忽略)</p>
+                    <div class="avatar-options" id="avatar-options">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber" class="avatar-option active" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber">
+                        <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Mecha" class="avatar-option" data-url="https://api.dicebear.com/7.x/adventurer/svg?seed=Mecha">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Neon" class="avatar-option" data-url="https://api.dicebear.com/7.x/micah/svg?seed=Neon">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Hacker&style=circle" class="avatar-option" data-url="https://api.dicebear.com/7.x/avataaars/svg?seed=Hacker&style=circle">
+                        <img src="https://api.dicebear.com/7.x/shapes/svg?seed=Matrix" class="avatar-option" data-url="https://api.dicebear.com/7.x/shapes/svg?seed=Matrix">
+
+                        <div class="avatar-upload-btn" id="avatar-upload-btn" title="上传本地图片 (最大 2MB)">
+                            <span>+</span>
+                        </div>
+                        <input type="file" id="avatar-upload-input" accept="image/png, image/jpeg, image/webp" style="display: none;">
+                        
+                    </div>
+                </div>
+
                 <button id="auth-submit-btn" class="auth-submit-btn">验证 / 注册 (ENTER)</button>
                 <p id="auth-msg" class="auth-msg"></p>
             </div>

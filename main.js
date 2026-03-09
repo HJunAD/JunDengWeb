@@ -439,6 +439,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameInput = document.getElementById('auth-username');
     const passwordInput = document.getElementById('auth-password');
     const authMsg = document.getElementById('auth-msg');
+    
+    // --- 🚀 全栈进化：化身选择与本地直传逻辑 ---
+    let selectedAvatarUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=Cyber"; // 默认选择
+    const avatarOptions = document.querySelectorAll('.avatar-option');
+    const uploadBtn = document.getElementById('avatar-upload-btn');
+    const uploadInput = document.getElementById('avatar-upload-input');
+    const authMsgBox = document.getElementById('auth-msg'); // 复用信息提示框
+
+    // 1. 点击默认头像的逻辑
+    avatarOptions.forEach(img => {
+        img.addEventListener('click', () => {
+            avatarOptions.forEach(opt => opt.classList.remove('active'));
+            if(uploadBtn) uploadBtn.classList.remove('active'); // 取消上传按钮的激活态
+            img.classList.add('active');
+            selectedAvatarUrl = img.getAttribute('data-url');
+        });
+    });
+
+    // 2. 本地上传核心逻辑
+    if (uploadBtn && uploadInput) {
+        // 点击圆圈，触发隐藏的相册选择器
+        uploadBtn.addEventListener('click', () => uploadInput.click());
+
+        // 用户选好照片后触发
+        uploadInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 防呆设计：防止上传几百MB的高清大图炸毁服务器
+            if (file.size > 2 * 1024 * 1024) {
+                authMsgBox.style.color = '#ff4444';
+                authMsgBox.innerText = '> 警告：图像体积过大，请压缩至 2MB 以内。';
+                return;
+            }
+
+            // UI 反馈：转圈圈加载中
+            uploadBtn.innerHTML = '<span style="font-size:0.8rem; color:var(--theme-color);">...</span>';
+            uploadBtn.style.borderColor = 'var(--theme-color)';
+            authMsgBox.style.color = 'var(--theme-color)';
+            authMsgBox.innerText = '> 正在向云端图床传输数据...';
+
+            // 打包数据
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // 发射给咱们自己写的云端中转站
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if (res.ok && data.url) {
+                    // 🎉 上传成功！把圆圈变成刚刚上传的图片
+                    uploadBtn.innerHTML = '';
+                    uploadBtn.style.backgroundImage = `url('${data.url}')`;
+                    uploadBtn.style.backgroundSize = 'cover';
+                    uploadBtn.style.backgroundPosition = 'center';
+                    
+                    // 转移选中高光
+                    avatarOptions.forEach(opt => opt.classList.remove('active'));
+                    uploadBtn.classList.add('active');
+                    
+                    // 核心：把这个真实的云端图床链接，交给注册系统！
+                    selectedAvatarUrl = data.url;
+                    
+                    authMsgBox.style.color = '#00ff00';
+                    authMsgBox.innerText = '> 图像直传完成，请继续输入密钥注册。';
+                } else {
+                    throw new Error(data.error || "未知异常");
+                }
+            } catch(e) {
+                authMsgBox.style.color = '#ff4444';
+                authMsgBox.innerText = '> 传输失败：' + e.message;
+                uploadBtn.innerHTML = '<span>+</span>'; // 恢复原状
+                uploadBtn.style.borderColor = '#666';
+            }
+        });
+    }
 
     // --- 1. 核心状态机：检查本地保险箱有没有“通行证” ---
     const checkLoginState = () => {
@@ -505,11 +582,15 @@ document.addEventListener('DOMContentLoaded', () => {
             authSubmitBtn.disabled = true; // 锁定按钮防连点
 
             try {
-                // 呼叫咱们刚刚写的 Cloudflare 后端接口
+                // 呼叫 Cloudflare 后端接口 (带上选中的头像)
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username, password: password })
+                    body: JSON.stringify({ 
+                        username: username, 
+                        password: password,
+                        avatar_url: selectedAvatarUrl // 🚀 传给后端！老用户后端会忽略，新用户后端会保存这个头像！
+                    })
                 });
                 
                 const data = await response.json();

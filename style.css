@@ -808,3 +808,59 @@ footer {
     .local-comment-panel.show { width: 100%; }
     #photo-comment-trigger { right: 10px; bottom: 10px; }
 }
+/* ==========================================
+   全栈进化：赛博登录弹窗 - 化身选择器
+   ========================================== */
+.avatar-selector-container {
+    margin-bottom: 1.5rem;
+    text-align: left;
+    background: #1f1f1f;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px dashed #444;
+}
+
+.selector-title {
+    color: #888;
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+    font-family: "Courier New", monospace;
+}
+
+.avatar-options {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.avatar-option {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #111;
+    padding: 2px;
+}
+
+/* 悬停与选中状态的特效 */
+.avatar-option:hover {
+    transform: translateY(-3px) scale(1.1);
+    border-color: #888;
+}
+
+.avatar-option.active {
+    border-color: var(--theme-color);
+    box-shadow: 0 0 15px rgba(255,140,0,0.4);
+    transform: scale(1.1);
+}
+
+/* 本地上传按钮特调样式 */
+.avatar-upload-btn {
+    width: 45px; height: 45px; border-radius: 50%;
+    border: 2px dashed #666; display: flex; justify-content: center; align-items: center;
+    cursor: pointer; transition: all 0.3s ease; background: #111; color: #888; font-size: 1.5rem;
+}
+.avatar-upload-btn:hover { border-color: var(--theme-color); color: var(--theme-color); transform: translateY(-3px) scale(1.1); }
+.avatar-upload-btn.active { border: 2px solid var(--theme-color); box-shadow: 0 0 15px rgba(255,140,0,0.4); transform: scale(1.1); }

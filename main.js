@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const lightbox = document.getElementById('lightbox');
                 document.getElementById('lightbox-img').src = photo.image_url;
                 document.getElementById('lightbox-caption').innerText = photo.caption;
-                lightbox.style.display = 'block';
+                lightbox.style.display = 'flex';
             });
         });
     } catch (error) {
@@ -563,69 +563,83 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 全栈重构：独立评论模块引擎 (V2.0 稳定版)
+// 全栈重构：独立评论模块引擎 (修复关闭BUG版)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 核心拉取数据的函数 ---
+    // --- 拉取评论 ---
     const loadComments = async (targetId, listElement) => {
-        listElement.innerHTML = '<p style="text-align:center;color:#666;margin-top:20px;">> 正在建立神经连接...</p>';
+        listElement.innerHTML = '<p style="text-align:center;color:#666;margin-top:20px;">> 打捞评论中...</p>';
         try {
             const res = await fetch(`/api/comments?target_id=${encodeURIComponent(targetId)}`);
             const comments = await res.json();
-            
-            listElement.innerHTML = comments.length ? '' : '<p style="text-align:center;color:#666;margin-top:20px;">暂无共鸣，来抢占一楼！</p>';
-            
+            listElement.innerHTML = comments.length ? '' : '<p style="text-align:center;color:#666;margin-top:20px;">暂无共鸣，抢沙发！</p>';
             comments.forEach(cmt => {
                 const div = document.createElement('div');
                 div.className = 'cmt-item';
-                div.innerHTML = `
-                    <img src="${cmt.avatar_url}" class="cmt-avatar">
-                    <div class="cmt-info">
-                        <div class="cmt-user-line">
-                            <span class="cmt-name">${cmt.username}</span>
-                            <span class="cmt-ip">${cmt.ip_location}</span>
-                        </div>
-                        <p class="cmt-text">${cmt.content}</p>
-                    </div>
-                `;
+                div.innerHTML = `<img src="${cmt.avatar_url}" class="cmt-avatar"><div class="cmt-info"><div class="cmt-user-line"><span class="cmt-name">${cmt.username}</span><span class="cmt-ip">${cmt.ip_location}</span></div><p class="cmt-text">${cmt.content}</p></div>`;
                 listElement.appendChild(div);
             });
-        } catch (e) {
-            listElement.innerHTML = '<p style="text-align:center;color:#ff4444;">网络波动，打捞失败。</p>';
-        }
+        } catch (e) { listElement.innerHTML = '<p style="text-align:center;color:#ff4444;">网络波动，打捞失败。</p>'; }
     };
 
-    // --- 核心发射数据的函数 ---
+    // --- 发射评论 ---
     const sendComment = async (targetId, inputElement, listElement) => {
         const savedUser = localStorage.getItem('jundeng_user');
-        if (!savedUser) {
-            document.getElementById('auth-modal').style.display = 'flex';
-            return;
-        }
-
+        if (!savedUser) { document.getElementById('auth-modal').style.display = 'flex'; return; }
         const user = JSON.parse(savedUser);
         const content = inputElement.value.trim();
         if (!content) return;
 
         try {
             const res = await fetch('/api/comments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    target_id: targetId, username: user.username,
-                    avatar_url: user.avatar_url, content: content
-                })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_id: targetId, username: user.username, avatar_url: user.avatar_url, content: content })
             });
-            if (res.ok) {
-                inputElement.value = ''; // 清空输入框
-                loadComments(targetId, listElement); // 重新加载列表
-            }
+            if (res.ok) { inputElement.value = ''; loadComments(targetId, listElement); }
         } catch (e) { alert("发送失败！"); }
     };
 
     // ========================================
-    // 🎵 音乐页面专属逻辑
+    // 📷 照片弹窗 (解决关不掉和评论不出的 BUG)
+    // ========================================
+    const lightbox = document.getElementById('lightbox');
+    const closePhotoModalBtn = document.getElementById('close-photo-modal');
+    const photoTrigger = document.getElementById('photo-comment-trigger');
+    const photoPanel = document.getElementById('photo-comment-panel');
+    const closePhotoPanel = document.getElementById('close-photo-panel');
+    const photoSendBtn = document.getElementById('photo-cmt-send');
+
+    // 1. 强制修复：关闭灯箱的逻辑
+    const closePhotoLightbox = () => {
+        if(lightbox) lightbox.style.display = 'none';
+        if(photoPanel) photoPanel.classList.remove('show');
+    };
+    if (closePhotoModalBtn) closePhotoModalBtn.addEventListener('click', closePhotoLightbox);
+    
+    // 点击黑底关闭 (只判断最外层，不影响里面元素)
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closePhotoLightbox();
+        });
+    }
+
+    // 2. 照片评论面板唤醒与发送
+    if (photoTrigger && photoPanel) {
+        photoTrigger.addEventListener('click', () => {
+            const imgSrc = document.getElementById('lightbox-img').src;
+            photoPanel.classList.add('show');
+            loadComments(imgSrc, document.getElementById('photo-cmt-list'));
+        });
+        closePhotoPanel.addEventListener('click', () => photoPanel.classList.remove('show'));
+        photoSendBtn.addEventListener('click', () => {
+            const imgSrc = document.getElementById('lightbox-img').src;
+            sendComment(imgSrc, document.getElementById('photo-cmt-input'), document.getElementById('photo-cmt-list'));
+        });
+    }
+
+    // ========================================
+    // 🎵 音乐弹窗逻辑
     // ========================================
     const musicTrigger = document.getElementById('music-comment-trigger');
     const musicPanel = document.getElementById('music-comment-panel');
@@ -633,49 +647,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicSendBtn = document.getElementById('music-cmt-send');
 
     if (musicTrigger && musicPanel) {
-        // 1. 点击展开
         musicTrigger.addEventListener('click', () => {
             const bvid = new URL(document.getElementById('bili-player').src).searchParams.get('bvid');
             musicPanel.classList.add('show');
             loadComments(bvid, document.getElementById('music-cmt-list'));
         });
-        // 2. 点击关闭
         closeMusicPanel.addEventListener('click', () => musicPanel.classList.remove('show'));
-        // 3. 点击发送
         musicSendBtn.addEventListener('click', () => {
             const bvid = new URL(document.getElementById('bili-player').src).searchParams.get('bvid');
             sendComment(bvid, document.getElementById('music-cmt-input'), document.getElementById('music-cmt-list'));
         });
-        // 4. 关闭主弹窗时，顺便把评论面板也收回去
+        // 挂载关闭音乐主弹窗时收起面板
         document.getElementById('close-music-modal').addEventListener('click', () => musicPanel.classList.remove('show'));
-    }
-
-    // ========================================
-    // 📷 照片页面专属逻辑
-    // ========================================
-    const photoTrigger = document.getElementById('photo-comment-trigger');
-    const photoPanel = document.getElementById('photo-comment-panel');
-    const closePhotoPanel = document.getElementById('close-photo-panel');
-    const photoSendBtn = document.getElementById('photo-cmt-send');
-    const closePhotoModalBtn = document.getElementById('close-photo-modal');
-
-    if (photoTrigger && photoPanel) {
-        // 1. 点击展开
-        photoTrigger.addEventListener('click', () => {
-            const imgSrc = document.getElementById('lightbox-img').src;
-            photoPanel.classList.add('show');
-            loadComments(imgSrc, document.getElementById('photo-cmt-list'));
-        });
-        // 2. 点击关闭
-        closePhotoPanel.addEventListener('click', () => photoPanel.classList.remove('show'));
-        // 3. 点击发送
-        photoSendBtn.addEventListener('click', () => {
-            const imgSrc = document.getElementById('lightbox-img').src;
-            sendComment(imgSrc, document.getElementById('photo-cmt-input'), document.getElementById('photo-cmt-list'));
-        });
-        // 4. 关闭主灯箱时，顺便把评论面板也收回去
-        if (closePhotoModalBtn) {
-            closePhotoModalBtn.addEventListener('click', () => photoPanel.classList.remove('show'));
-        }
     }
 });

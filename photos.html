@@ -44,18 +44,26 @@
     </main>
 
     <div id="lightbox" class="lightbox">
-        <span class="close-lightbox">&times;</span>
-        <div class="lightbox-main-container">
-            <div class="lightbox-left">
-                <img class="lightbox-content" id="lightbox-img">
-                <div id="lightbox-caption"></div>
-            </div>
+        <span class="close-lightbox" id="close-photo-modal">&times;</span>
         
-            <div class="embedded-comments" id="photo-comments">
+        <div class="photo-modal-content" style="position: relative; width: 90%; max-width: 1200px; height: 85vh; margin: 5vh auto; display: flex; justify-content: center; align-items: center;">
+            
+            <img class="lightbox-content" id="lightbox-img" style="max-height: 100%; max-width: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.8);">
+            
+            <div style="position: absolute; bottom: -40px; display: flex; gap: 20px; align-items: center;">
+                <div id="lightbox-caption" style="color: #ccc; font-size: 1.2rem;"></div>
+                <button class="comment-trigger-btn" id="photo-comment-trigger">💬 评论</button>
+            </div>
+
+            <div class="local-comment-panel" id="photo-comment-panel">
+                <div class="panel-header">
+                    <h3>💬评论</h3>
+                    <button class="close-panel-btn" id="close-photo-panel">&times;</button>
+                </div>
                 <div class="cmt-list" id="photo-cmt-list"></div>
                 <div class="cmt-input-group">
-                    <textarea id="photo-cmt-input" placeholder="此刻的想法..."></textarea>
-                    <button class="cmt-send-btn" id="photo-cmt-send">评论</button>
+                    <textarea id="photo-cmt-input" placeholder="这张照片让你想到了什么..."></textarea>
+                    <button class="cmt-send-btn" id="photo-cmt-send">发送 (SEND)</button>
                 </div>
             </div>
         </div>

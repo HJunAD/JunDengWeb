@@ -52,7 +52,6 @@
 
     <div id="music-modal" class="lightbox">
         <span class="close-lightbox" id="close-music-modal">&times;</span>
-        
         <div class="music-modal-content">
             <div id="modal-blur-bg" class="modal-blur-bg"></div>
             
@@ -65,21 +64,20 @@
                 <div class="modal-right">
                     <h2 id="modal-song-title">歌曲名</h2>
                     <p id="modal-song-desc">这是歌曲描述。</p>
+                    <button class="comment-trigger-btn" id="music-comment-trigger">💬 展开评论</button>
                 </div>
-                
-                <div class="modal-content-wrapper">
-                    <div class="modal-left"> ... </div>
-                    <div class="modal-right"> ... </div>
-    
-                    <div class="embedded-comments" id="music-comments">
-                        <div class="cmt-list" id="music-cmt-list"></div>
-                        <div class="cmt-input-group">
-                            <textarea id="music-cmt-input" placeholder="聊聊这首歌..."></textarea>
-                            <button class="cmt-send-btn" id="music-cmt-send">发送</button>
-                        </div>
-                    </div>
+            </div>
+
+            <div class="local-comment-panel" id="music-comment-panel">
+                <div class="panel-header">
+                    <h3>💬评论</h3>
+                    <button class="close-panel-btn" id="close-music-panel">&times;</button>
                 </div>
-                
+                <div class="cmt-list" id="music-cmt-list"></div>
+                <div class="cmt-input-group">
+                    <textarea id="music-cmt-input" placeholder="留下你的声音..."></textarea>
+                    <button class="cmt-send-btn" id="music-cmt-send">发送 (SEND)</button>
+                </div>
             </div>
         </div>
     </div>

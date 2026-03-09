@@ -6,112 +6,163 @@
     <title>站长控制台 - JunDeng's Personal Web</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- 绝密控制台专属样式 --- */
-        body { justify-content: center; align-items: center; background-image: radial-gradient(circle at center, #222 0%, #111 100%); }
-        .admin-container { width: 90%; max-width: 600px; background: #262626; border-radius: 12px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); overflow: hidden; }
+        /* --- 绝密控制台专属样式 (网格相册风) --- */
+        body { justify-content: center; align-items: center; background-image: radial-gradient(circle at center, #222 0%, #111 100%); min-height: 100vh; display: flex; flex-direction: column; margin: 0;}
+        .admin-container { width: 95%; max-width: 1000px; background: #262626; border-radius: 12px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;}
         
-        .admin-header { background: #1f1f1f; padding: 1.5rem; text-align: center; border-bottom: 2px solid var(--theme-color); }
-        .admin-header h1 { color: var(--theme-color); font-family: "Courier New", monospace; font-size: 1.8rem; letter-spacing: 2px; }
+        .admin-header { background: #1f1f1f; padding: 1.5rem; text-align: center; border-bottom: 2px solid var(--theme-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
+        .admin-header h1 { color: var(--theme-color); font-family: "Courier New", monospace; font-size: 1.5rem; letter-spacing: 2px; margin: 0;}
+        .home-link { color: #888; text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
+        .home-link:hover { color: var(--theme-color); }
         
-        .admin-body { padding: 2.5rem 2rem; }
+        /* 权限拦截界面 */
+        #auth-section { text-align: center; padding: 5rem 0; }
+        #auth-section p { color: #ff4444; font-size: 1.1rem; font-weight: bold; font-family: monospace;}
         
-        /* 密码锁界面 */
-        #auth-section { text-align: center; }
-        #auth-section p { color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
-        .auth-input { width: 80%; background: #111; border: 1px solid #444; color: var(--theme-color); padding: 12px 20px; border-radius: 30px; outline: none; text-align: center; font-family: monospace; font-size: 1.2rem; letter-spacing: 5px; margin-bottom: 1.5rem; transition: 0.3s; }
-        .auth-input:focus { border-color: var(--theme-color); box-shadow: 0 0 15px rgba(255, 140, 0, 0.2); }
-        .btn-primary { background: var(--theme-color); color: #111; border: none; padding: 12px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3); }
-
-        /* 后台表单界面 (默认隐藏) */
-        #dashboard-section { display: none; }
-        .admin-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; }
+        /* 后台面板主区 */
+        #dashboard-section { display: none; display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        .admin-tabs { display: flex; gap: 1rem; padding: 1.5rem; justify-content: center; background: #222; border-bottom: 1px solid #333;}
+        .tab-btn { background: #111; color: #888; border: 1px solid #333; padding: 10px 25px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 1rem; font-weight: bold; letter-spacing: 1px;}
+        .tab-btn.active, .tab-btn:hover { background: var(--theme-color); color: #111; border-color: var(--theme-color); box-shadow: 0 0 15px rgba(255,140,0,0.3); }
         
-        .form-group { margin-bottom: 1.2rem; text-align: left; }
-        .form-group label { display: block; color: #aaa; margin-bottom: 0.5rem; font-size: 0.85rem; }
-        .form-control { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 6px; outline: none; transition: 0.3s; }
-        .form-control:focus { border-color: var(--theme-color); }
-        
-        .form-panel { display: none; }
+        .form-panel { display: none; padding: 2rem; overflow-y: auto; flex: 1; }
         .form-panel.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        #sys-msg { margin-top: 1rem; font-size: 0.9rem; font-weight: bold; text-align: center; min-height: 20px;}
+        #sys-msg { padding: 1rem; font-size: 0.9rem; font-weight: bold; text-align: center; font-family: "Courier New", monospace; background: #1a1a1a; border-top: 1px solid #333; flex-shrink: 0;}
+
+        /* --- 🚀 核心进化：网格展示系统 --- */
+        .admin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        
+        /* 数据实体卡片 */
+        .admin-card { position: relative; aspect-ratio: 1; background: #111; border-radius: 8px; overflow: hidden; border: 1px solid #333; transition: 0.3s;}
+        .admin-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s; }
+        
+        /* 悬停浮层：显示信息与删除按钮 */
+        .admin-card-overlay { 
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85); opacity: 0; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            transition: 0.3s; padding: 1rem; text-align: center; backdrop-filter: blur(2px);
+        }
+        .admin-card:hover .admin-card-overlay { opacity: 1; }
+        .admin-card:hover img { transform: scale(1.1); }
+        .admin-card-title { color: #fff; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+        .del-btn { background: transparent; border: 2px solid #ff4444; color: #ff4444; padding: 8px 20px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-weight: bold; letter-spacing: 2px;}
+        .del-btn:hover { background: #ff4444; color: #111; box-shadow: 0 0 15px rgba(255,68,68,0.5); }
+
+        /* 🚀 半透明上传加号卡片 */
+        .add-card { 
+            aspect-ratio: 1; border-radius: 8px; border: 2px dashed #444; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.02);
+        }
+        .add-icon { font-size: 4rem; color: #444; font-weight: lighter; transition: 0.3s; line-height: 1;}
+        .add-text { color: #666; font-size: 0.9rem; margin-top: 10px; font-weight: bold; transition: 0.3s;}
+        .add-card:hover { border-color: var(--theme-color); background: rgba(255,140,0,0.05); transform: translateY(-5px);}
+        .add-card:hover .add-icon, .add-card:hover .add-text { color: var(--theme-color); }
+
+        /* --- 弹窗表单 (居中输入) --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { background: #1a1a1a; width: 90%; max-width: 400px; padding: 2rem; border-radius: 12px; border: 1px solid var(--theme-color); box-shadow: 0 0 30px rgba(255,140,0,0.2); animation: pop 0.3s ease; }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-box h3 { color: var(--theme-color); margin-top: 0; margin-bottom: 1.5rem; text-align: center; font-family: monospace; font-size: 1.2rem;}
+        
+        .form-group { margin-bottom: 1.2rem; }
+        .form-control { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; outline: none; transition: 0.3s; }
+        .form-control:focus { border-color: var(--theme-color); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 2rem; }
+        .btn { flex: 1; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
+        .btn-cancel { background: transparent; color: #888; border: 1px solid #444; }
+        .btn-cancel:hover { background: #333; color: #fff; }
+        .btn-submit { background: var(--theme-color); color: #111; }
+        .btn-submit:hover { background: #e67e22; box-shadow: 0 0 15px rgba(255,140,0,0.4); }
+
+        @media (max-width: 768px) { .admin-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
 
     <div class="admin-container">
         <header class="admin-header">
-            <h1>> SYSTEM_ADMIN_CONSOLE</h1>
+            <h1>> SYS_CONSOLE</h1>
+            <a href="index.html" class="home-link">[退出终端]</a>
         </header>
 
-        <main class="admin-body">
-            <div id="auth-section">
-                <p>⚠️ 警告：检测到未授权访问，请输入站长指令口令。</p>
-                <input type="password" id="admin-pwd" class="auth-input" placeholder="••••••••">
-                <br>
-                <button id="unlock-btn" class="btn-primary">解除锁定 (UNLOCK)</button>
+        <div id="auth-section">
+            <p id="auth-status">> 正在扫描终端神经链，核对最高权限...</p>
+        </div>
+
+        <div id="dashboard-section">
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-target="panel-photo">📷 影像系统</button>
+                <button class="tab-btn" data-target="panel-music">🎵 音乐系统</button>
             </div>
 
-            <div id="dashboard-section">
-                <div class="admin-tabs">
-                    <button class="tab-btn active" data-target="panel-photo">📷 发布闲拍</button>
-                    <button class="tab-btn" data-target="panel-music">🎵 上传音乐</button>
-                </div>
-
-                <div id="panel-photo" class="form-panel active">
-                    <div class="form-group">
-                        <label>照片链接 (URL)</label>
-                        <input type="text" id="photo-url" class="form-control" placeholder="例: photography/DSC0001.JPG">
-                    </div>
-                    <div class="form-group">
-                        <label>照片描述 (Caption)</label>
-                        <input type="text" id="photo-caption" class="form-control" placeholder="例: 武汉大学的樱花">
-                    </div>
-                    <button id="submit-photo" class="btn-primary" style="width: 100%; margin-top: 1rem;">确认写入数据库</button>
-                </div>
-
-                <div id="panel-music" class="form-panel">
-                    <div class="form-group">
-                        <label>歌手名 (Singer)</label>
-                        <input type="text" id="music-singer" class="form-control" placeholder="例: 林俊杰">
-                    </div>
-                    <div class="form-group">
-                        <label>歌曲名 (Title)</label>
-                        <input type="text" id="music-title" class="form-control" placeholder="例: 江南">
-                    </div>
-                    <div class="form-group">
-                        <label>B站视频号 (BVID)</label>
-                        <input type="text" id="music-bvid" class="form-control" placeholder="例: BV1xxxxx">
-                    </div>
-                    <div class="form-group">
-                        <label>专辑封面图 (Cover URL)</label>
-                        <input type="text" id="music-cover" class="form-control" placeholder="例: album/jj/jiangnan.png">
-                    </div>
-                    <div class="form-group">
-                        <label>一句话乐评 (Description)</label>
-                        <input type="text" id="music-desc" class="form-control" placeholder="风到这里就是粘...">
-                    </div>
-                    <button id="submit-music" class="btn-primary" style="width: 100%; margin-top: 1rem;">确认写入数据库</button>
-                </div>
-                
-                <div id="sys-msg"></div>
+            <div id="panel-photo" class="form-panel active">
+                <div class="admin-grid" id="photo-grid"></div>
             </div>
-        </main>
+
+            <div id="panel-music" class="form-panel">
+                <div class="admin-grid" id="music-grid"></div>
+            </div>
+            
+            <div id="sys-msg"></div>
+        </div>
+    </div>
+
+    <div id="modal-photo" class="modal-overlay">
+        <div class="modal-box">
+            <h3>>_ 新增影像节点</h3>
+            <div class="form-group"><input type="text" id="photo-url" class="form-control" placeholder="照片链接 (URL)"></div>
+            <div class="form-group"><input type="text" id="photo-caption" class="form-control" placeholder="照片描述 (Caption)"></div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal('modal-photo')">取消</button>
+                <button class="btn btn-submit" id="submit-photo">写入云端</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-music" class="modal-overlay">
+        <div class="modal-box">
+            <h3>>_ 注入黑胶唱片</h3>
+            <div class="form-group"><input type="text" id="music-singer" class="form-control" placeholder="歌手名"></div>
+            <div class="form-group"><input type="text" id="music-title" class="form-control" placeholder="歌曲名"></div>
+            <div class="form-group"><input type="text" id="music-bvid" class="form-control" placeholder="B站视频号 (BVID)"></div>
+            <div class="form-group"><input type="text" id="music-cover" class="form-control" placeholder="专辑封面图 (URL)"></div>
+            <div class="form-group"><input type="text" id="music-desc" class="form-control" placeholder="一句话乐评"></div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal('modal-music')">取消</button>
+                <button class="btn btn-submit" id="submit-music">刻录数据</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 1. 简单的 UI 切换逻辑
-        document.getElementById('unlock-btn').addEventListener('click', () => {
-            const pwd = document.getElementById('admin-pwd').value;
-            if(!pwd) return;
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'block';
-        });
+        const msgBox = document.getElementById('sys-msg');
+        let currentAdmin = null;
 
-        // 2. 表单面板切换逻辑
-        const tabBtns = document.querySelectorAll('.admin-tabs .tab-btn');
+        // 1. 站长权限验证
+        const initAuth = () => {
+            const savedUser = localStorage.getItem('jundeng_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                if (user.role === 'admin') {
+                    currentAdmin = user;
+                    document.getElementById('auth-section').style.display = 'none';
+                    document.getElementById('dashboard-section').style.display = 'flex';
+                    msgBox.style.color = '#00ff00';
+                    msgBox.innerText = `> 欢迎回来，最高指挥官 [${user.username}]`;
+                    loadPhotos(); loadMusic(); // 验证通过后加载数据
+                    return;
+                }
+            }
+            document.getElementById('auth-status').innerText = '[FATAL ERROR] 访问被拒绝：你没有站长特权。';
+            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        };
+        initAuth();
+
+        // 2. 标签切换与弹窗控制
+        const tabBtns = document.querySelectorAll('.tab-btn');
         const panels = document.querySelectorAll('.form-panel');
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -122,80 +173,129 @@
             });
         });
 
-        // ==========================================
-        // 终极魔法：向前台发射数据
-        // ==========================================
-        const msgBox = document.getElementById('sys-msg');
+        const openModal = (id) => document.getElementById(id).style.display = 'flex';
+        const closeModal = (id) => {
+            document.getElementById(id).style.display = 'none';
+            document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); // 清空输入框
+        };
 
-        // 3. 拦截【发布闲拍】按钮
+        // ==========================================
+        // 3. 动态渲染网格与新增按钮
+        // ==========================================
+        
+        // 渲染追加的上传按钮卡片
+        const createAddCard = (type) => {
+            const card = document.createElement('div');
+            card.className = 'add-card';
+            card.innerHTML = `<span class="add-icon">+</span><span class="add-text">${type === 'photo' ? '发布新照片' : '上架新黑胶'}</span>`;
+            card.addEventListener('click', () => openModal(type === 'photo' ? 'modal-photo' : 'modal-music'));
+            return card;
+        };
+
+        // 加载照片网格
+        const loadPhotos = async () => {
+            const grid = document.getElementById('photo-grid');
+            grid.innerHTML = '';
+            try {
+                const res = await fetch('/api/photos');
+                const photos = await res.json();
+                photos.forEach(photo => {
+                    const card = document.createElement('div');
+                    card.className = 'admin-card';
+                    card.innerHTML = `
+                        <img src="${photo.image_url}" alt="photo">
+                        <div class="admin-card-overlay">
+                            <div class="admin-card-title">${photo.caption}</div>
+                            <button class="del-btn">🗑️ 抹除</button>
+                        </div>
+                    `;
+                    card.querySelector('.del-btn').addEventListener('click', () => deleteItem('photos', photo.id));
+                    grid.appendChild(card);
+                });
+                grid.appendChild(createAddCard('photo')); // 最后永远跟着一个+号
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = '> 照片拉取失败'; }
+        };
+
+        // 加载音乐网格
+        const loadMusic = async () => {
+            const grid = document.getElementById('music-grid');
+            grid.innerHTML = '';
+            try {
+                const res = await fetch('/api/music');
+                const songs = await res.json();
+                songs.forEach(song => {
+                    const card = document.createElement('div');
+                    card.className = 'admin-card';
+                    card.innerHTML = `
+                        <img src="${song.cover_url}" alt="cover">
+                        <div class="admin-card-overlay">
+                            <div class="admin-card-title">[${song.singer}]<br>${song.title}</div>
+                            <button class="del-btn">🗑️ 抹除</button>
+                        </div>
+                    `;
+                    card.querySelector('.del-btn').addEventListener('click', () => deleteItem('music', song.id));
+                    grid.appendChild(card);
+                });
+                grid.appendChild(createAddCard('music')); // 最后永远跟着一个+号
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = '> 音乐拉取失败'; }
+        };
+
+        // ==========================================
+        // 4. 上传与抹除引擎 (直连云端)
+        // ==========================================
+
+        // 执行删除
+        const deleteItem = async (type, id) => {
+            if(!confirm('🚨 系统警告：此操作不可逆，确定将此记录从云端抹除？')) return;
+            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 正在执行抹除指令...';
+            try {
+                const res = await fetch(`/api/${type}`, {
+                    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_user: currentAdmin.username, id: id })
+                });
+                if(res.ok) {
+                    msgBox.style.color = '#00ff00'; msgBox.innerText = '> 目标已成功抹除。';
+                    type === 'photos' ? loadPhotos() : loadMusic(); // 自动刷新网格
+                } else { throw new Error(await res.json().error); }
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = `> 失败：${e.message}`; }
+        };
+
+        // 执行上传：影像
         document.getElementById('submit-photo').addEventListener('click', async () => {
-            const pwd = document.getElementById('admin-pwd').value;
             const url = document.getElementById('photo-url').value.trim();
             const caption = document.getElementById('photo-caption').value.trim();
-
-            if(!url || !caption) {
-                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 错误：缺少必要参数。'; return;
-            }
-
-            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 正在越权写入云端数据库...';
-
+            if(!url || !caption) { alert('缺少必要参数'); return; }
+            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 影像传输中...';
             try {
                 const res = await fetch('/api/photos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: pwd, image_url: url, caption: caption })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_user: currentAdmin.username, image_url: url, caption: caption })
                 });
-                const data = await res.json();
-                
                 if(res.ok) {
-                    msgBox.style.color = '#00ff00'; msgBox.innerText = `> ${data.message}`;
-                    document.getElementById('photo-url').value = '';
-                    document.getElementById('photo-caption').value = '';
-                } else {
-                    msgBox.style.color = '#ff4444'; msgBox.innerText = `> 拦截：${data.error}`;
-                }
-            } catch (e) {
-                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 核心失联：网络请求失败！';
-            }
+                    msgBox.style.color = '#00ff00'; msgBox.innerText = `> 影像写入成功。`;
+                    closeModal('modal-photo'); loadPhotos(); // 关闭弹窗并刷新网格
+                } else { throw new Error(await res.json().error); }
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = `> 失败：${e.message}`; }
         });
 
-        // 4. 拦截【上架音乐】按钮
+        // 执行上传：音乐
         document.getElementById('submit-music').addEventListener('click', async () => {
-            const pwd = document.getElementById('admin-pwd').value;
-            const singer = document.getElementById('music-singer').value.trim();
-            const title = document.getElementById('music-title').value.trim();
-            const bvid = document.getElementById('music-bvid').value.trim();
-            const cover = document.getElementById('music-cover').value.trim();
-            const desc = document.getElementById('music-desc').value.trim();
-
-            if(!singer || !title || !bvid || !cover) {
-                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 错误：关键参数缺失。'; return;
-            }
-
-            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 正在越权写入云端数据库...';
-
+            const singer = document.getElementById('music-singer').value.trim(), title = document.getElementById('music-title').value.trim();
+            const bvid = document.getElementById('music-bvid').value.trim(), cover = document.getElementById('music-cover').value.trim(), desc = document.getElementById('music-desc').value.trim();
+            if(!singer || !title || !bvid || !cover) { alert('参数缺失'); return; }
+            msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 黑胶刻录中...';
             try {
                 const res = await fetch('/api/music', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        password: pwd, singer: singer, title: title, 
-                        bvid: bvid, cover_url: cover, description: desc 
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_user: currentAdmin.username, singer, title, bvid, cover_url: cover, description: desc })
                 });
-                const data = await res.json();
-                
                 if(res.ok) {
-                    msgBox.style.color = '#00ff00'; msgBox.innerText = `> ${data.message}`;
-                    // 清空所有输入框
-                    document.querySelectorAll('#panel-music input').forEach(input => input.value = '');
-                } else {
-                    msgBox.style.color = '#ff4444'; msgBox.innerText = `> 拦截：${data.error}`;
-                }
-            } catch (e) {
-                msgBox.style.color = '#ff4444'; msgBox.innerText = '> 核心失联：网络请求失败！';
-            }
+                    msgBox.style.color = '#00ff00'; msgBox.innerText = `> 唱片上架成功。`;
+                    closeModal('modal-music'); loadMusic(); // 关闭弹窗并刷新网格
+                } else { throw new Error(await res.json().error); }
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = `> 失败：${e.message}`; }
         });
+
     </script>
 </body>
 </html>

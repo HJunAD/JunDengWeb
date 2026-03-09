@@ -563,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 全栈重构：独立评论模块引擎 (终极防弹修复版)
+// 全栈重构：独立评论模块引擎 (终极排版修复版)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -601,11 +601,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ========================================
-    // 📷 照片弹窗 (修复 ❌ 失效与发送失效 BUG)
+    // 📷 照片弹窗 (解决 HTML 缺失导致的全面瘫痪)
     // ========================================
     const lightbox = document.getElementById('lightbox');
-    // 增强兼容性：就算漏了 ID 也能抓到 ❌ 按钮
-    const closePhotoModalBtn = document.getElementById('close-photo-modal') || document.querySelector('#lightbox .close-lightbox');
+    const closePhotoModalBtn = document.getElementById('close-photo-modal');
     const photoTrigger = document.getElementById('photo-comment-trigger');
     const photoPanel = document.getElementById('photo-comment-panel');
     const closePhotoPanel = document.getElementById('close-photo-panel');
@@ -617,7 +616,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(photoTrigger) photoTrigger.classList.remove('hidden');
     };
 
-    // 绑定关闭 ❌
     if (closePhotoModalBtn) {
         closePhotoModalBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -625,26 +623,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 黑底关闭逻辑
     if (lightbox) {
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closePhotoLightbox();
         });
     }
 
-    // 照片评论交互
+    // 只有在 HTML 元素存在时才绑定（避免报错）
     if (photoTrigger && photoPanel) {
         photoTrigger.addEventListener('click', (e) => {
-            e.stopPropagation(); // 🚀 阻断幽灵点击 BUG
+            e.stopPropagation(); 
             const imgSrc = document.getElementById('lightbox-img').src;
             photoPanel.classList.add('show');
-            photoTrigger.classList.add('hidden');
+            photoTrigger.classList.add('hidden'); // 隐藏图标
             loadComments(imgSrc, document.getElementById('photo-cmt-list'));
         });
         closePhotoPanel.addEventListener('click', (e) => {
             e.stopPropagation();
             photoPanel.classList.remove('show');
-            photoTrigger.classList.remove('hidden');
+            photoTrigger.classList.remove('hidden'); // 恢复图标
         });
         if (photoSendBtn) {
             photoSendBtn.addEventListener('click', (e) => {
@@ -663,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicPanel = document.getElementById('music-comment-panel');
     const closeMusicPanel = document.getElementById('close-music-panel');
     const musicSendBtn = document.getElementById('music-cmt-send');
-    const closeMusicModalBtn = document.getElementById('close-music-modal') || document.querySelector('#music-modal .close-lightbox');
+    const closeMusicModalBtn = document.getElementById('close-music-modal');
 
     const closeMusicLightbox = () => {
         if(musicModal) musicModal.style.display = 'none';
@@ -673,7 +670,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(biliPlayer) biliPlayer.src = ""; 
     };
 
-    // 绑定关闭 ❌
     if (closeMusicModalBtn) {
         closeMusicModalBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -681,26 +677,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 黑底关闭逻辑
     if (musicModal) {
         musicModal.addEventListener('click', (e) => {
             if (e.target === musicModal) closeMusicLightbox();
         });
     }
 
-    // 音乐评论交互
     if (musicTrigger && musicPanel) {
         musicTrigger.addEventListener('click', (e) => {
-            e.stopPropagation(); // 🚀 核心修复：斩断点击穿透，面板再也不会闪退了！
+            e.stopPropagation(); 
             const bvid = new URL(document.getElementById('bili-player').src).searchParams.get('bvid');
             musicPanel.classList.add('show');
-            musicTrigger.classList.add('hidden');
+            musicTrigger.classList.add('hidden'); // 隐藏图标
             loadComments(bvid, document.getElementById('music-cmt-list'));
         });
         closeMusicPanel.addEventListener('click', (e) => {
             e.stopPropagation();
             musicPanel.classList.remove('show');
-            musicTrigger.classList.remove('hidden');
+            musicTrigger.classList.remove('hidden'); // 恢复图标
         });
         if (musicSendBtn) {
             musicSendBtn.addEventListener('click', (e) => {

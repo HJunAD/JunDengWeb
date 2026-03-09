@@ -165,7 +165,7 @@
         const createAddCard = (type) => {
             const card = document.createElement('div');
             card.className = 'add-card';
-            card.innerHTML = `<span class="add-icon">+</span><span class="add-text">${type === 'photo' ? '发布新照片' : '上架新黑胶'}</span>`;
+            card.innerHTML = `<span class="add-icon">+</span><span class="add-text">${type === 'photo' ? '发布新照片' : '上传新歌单'}</span>`;
             card.addEventListener('click', () => openModal(type === 'photo' ? 'modal-photo' : 'modal-music'));
             return card;
         };

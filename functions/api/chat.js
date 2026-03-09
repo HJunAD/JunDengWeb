@@ -14,7 +14,7 @@ export async function onRequestPost(context) {
       },
       // 3. 拦截前端传来的参数，强制指定通义千问的模型 (这里使用性价比极高的 qwen-plus)
       body: JSON.stringify({
-        model: "qwen-plus", 
+        model: "qwen3.5-plus-2026-02-15", 
         messages: body.messages,
         temperature: body.temperature
       })

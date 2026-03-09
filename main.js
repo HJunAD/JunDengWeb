@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameInput = document.getElementById('auth-username');
     const passwordInput = document.getElementById('auth-password');
     const authMsg = document.getElementById('auth-msg');
-    
+
     // --- 🚀 全栈进化：化身选择与本地直传逻辑 ---
     let selectedAvatarUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=Cyber"; // 默认选择
     const avatarOptions = document.querySelectorAll('.avatar-option');
@@ -519,19 +519,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. 核心状态机：检查本地保险箱有没有“通行证” ---
     const checkLoginState = () => {
-        // 从浏览器的 LocalStorage 中读取用户信息
         const savedUser = localStorage.getItem('jundeng_user');
         
         if (savedUser) {
-            // 解析通行证数据
             const user = JSON.parse(savedUser);
-            // 切换为已登录 UI
             loginTriggerBtn.style.display = 'none';
             profileMenu.style.display = 'block';
             navAvatar.src = user.avatar_url;
             navNickname.innerText = user.username;
+            
+            // 🚀 核心阶级判定：如果是站长，显示秘密入口！
+            const adminBtn = document.getElementById('admin-entry-btn');
+            if (adminBtn) {
+                if (user.role === 'admin') {
+                    adminBtn.style.display = 'block';
+                    adminBtn.onclick = () => window.location.href = 'admin.html'; // 点击跳转到你的 CMS
+                } else {
+                    adminBtn.style.display = 'none';
+                }
+            }
         } else {
-            // 切换为未登录 UI
             loginTriggerBtn.style.display = 'block';
             profileMenu.style.display = 'none';
         }
@@ -603,7 +610,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 颁发通行证：把账号和头像锁进本地浏览器
                     localStorage.setItem('jundeng_user', JSON.stringify({
                         username: username,
-                        avatar_url: data.avatar_url
+                        avatar_url: data.avatar_url,
+                        role: data.role
                     }));
 
                     // 延迟 1 秒后自动关闭弹窗并刷新右上角 UI

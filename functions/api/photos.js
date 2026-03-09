@@ -1,71 +1,69 @@
-export async function onRequestGet(context) {
-  try {
-    // 1. 从保险箱拿出 Supabase 的钥匙
-    const supabaseUrl = context.env.SUPABASE_URL;
-    const supabaseKey = context.env.SUPABASE_ANON_KEY;
+// ==========================================
+// 影像 API 枢纽 (包含拉取、上传与安全抹除)
+// ==========================================
 
-    // 2. 去 Supabase 冰箱的 photos 表里拿数据（按上传时间倒序，最新的在最前面）
-    const response = await fetch(`${supabaseUrl}/rest/v1/photos?select=*&order=created_at.desc`, {
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`
-      }
+// 辅助函数：核实站长权限
+async function verifyAdmin(username, supabaseUrl, supabaseKey) {
+    if (!username) return false;
+    const res = await fetch(`${supabaseUrl}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=role`, {
+        headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
     });
-
-    // 3. 把拿到的照片盲盒打包
-    const data = await response.json();
-    
-    // 4. 原封不动地送给前端大堂
-    return new Response(JSON.stringify(data), {
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-  }
+    const users = await res.json();
+    return users.length > 0 && users[0].role === 'admin';
 }
 
+// 1. 获取照片 (所有人均可)
+export async function onRequestGet(context) {
+    const { env } = context;
+    try {
+        const res = await fetch(`${env.SUPABASE_URL}/rest/v1/photos?select=*&order=id.desc`, {
+            headers: { "apikey": env.SUPABASE_ANON_KEY, "Authorization": `Bearer ${env.SUPABASE_ANON_KEY}` }
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+    } catch (e) { return new Response(JSON.stringify({ error: e.message }), { status: 500 }); }
+}
 
-// ==========================================
-// 站长专属通道：接收并验证数据，存入数据库
-// ==========================================
+// 2. 上传照片 (仅限站长)
 export async function onRequestPost(context) {
-  try {
-    const body = await context.request.json();
+    const { request, env } = context;
+    try {
+        const body = await request.json();
+        
+        // 🚨 核心安全防御：核对站长身份
+        const isAdmin = await verifyAdmin(body.admin_user, env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        if (!isAdmin) return new Response(JSON.stringify({ error: "非法越权：你不是系统站长！" }), { status: 403 });
 
-    // 1. 赛博保安：核对暗号
-    if (body.password !== context.env.ADMIN_PASSWORD) {
-      return new Response(JSON.stringify({ error: "口令错误，拒绝访问！" }), { status: 401 });
-    }
+        const res = await fetch(`${env.SUPABASE_URL}/rest/v1/photos`, {
+            method: "POST",
+            headers: { "apikey": env.SUPABASE_ANON_KEY, "Authorization": `Bearer ${env.SUPABASE_ANON_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+            body: JSON.stringify({ image_url: body.image_url, caption: body.caption })
+        });
 
-    // 2. 拿到 Supabase 的钥匙
-    const supabaseUrl = context.env.SUPABASE_URL;
-    const supabaseKey = context.env.SUPABASE_ANON_KEY;
+        if (!res.ok) throw new Error("写入数据库失败");
+        return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+    } catch (e) { return new Response(JSON.stringify({ error: e.message }), { status: 500 }); }
+}
 
-    // 3. 把你传来的照片信息打包
-    const insertData = {
-      image_url: body.image_url,
-      caption: body.caption
-    };
+// 3. 抹除照片 (仅限站长)
+export async function onRequestDelete(context) {
+    const { request, env } = context;
+    try {
+        const body = await request.json();
+        
+        // 🚨 核心安全防御：核对站长身份
+        const isAdmin = await verifyAdmin(body.admin_user, env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        if (!isAdmin) return new Response(JSON.stringify({ error: "非法越权：你没有抹除权限！" }), { status: 403 });
 
-    // 4. 拿着钥匙，强行写入 Supabase 的 photos 表
-    const response = await fetch(`${supabaseUrl}/rest/v1/photos`, {
-      method: "POST",
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal" // 告诉数据库：存进去就行，不用啰嗦
-      },
-      body: JSON.stringify(insertData)
-    });
+        if (!body.id) throw new Error("缺少要抹除的目标 ID");
 
-    if (!response.ok) throw new Error("数据库写入失败");
+        // 呼叫 Supabase 执行物理删除
+        const res = await fetch(`${env.SUPABASE_URL}/rest/v1/photos?id=eq.${body.id}`, {
+            method: "DELETE",
+            headers: { "apikey": env.SUPABASE_ANON_KEY, "Authorization": `Bearer ${env.SUPABASE_ANON_KEY}` }
+        });
 
-    // 5. 告诉密室：搞定！
-    return new Response(JSON.stringify({ success: true, message: "照片发布成功！前台已更新。" }), {
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-  }
+        if (!res.ok) throw new Error("云端抹除失败");
+        return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+    } catch (e) { return new Response(JSON.stringify({ error: e.message }), { status: 500 }); }
 }

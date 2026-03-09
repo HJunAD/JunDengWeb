@@ -623,7 +623,16 @@ footer {
 .nav-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; object-fit: cover; transition: 0.3s; }
 .user-profile-menu:hover .nav-avatar { border-color: var(--theme-color); transform: scale(1.05); }
 
-.dropdown-menu { position: absolute; top: 130%; right: 0; background: #262626; border: 1px solid #333; border-radius: 8px; width: 140px; padding: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.8); display: none; flex-direction: column; z-index: 1000; opacity: 0; transform: translateY(-10px); transition: 0.3s; }
+.dropdown-menu { position: absolute; top: 110%; right: 0; background: #262626; border: 1px solid #333; border-radius: 8px; width: 140px; padding: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.8); display: none; flex-direction: column; z-index: 1000; opacity: 0; transform: translateY(-10px); transition: 0.3s; }
+.dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -20px; /* 向上延伸 20px 接触到头像底部 */
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: transparent; /* 完全透明，看不见但能感应鼠标 */
+}
 .user-profile-menu:hover .dropdown-menu { display: flex; opacity: 1; transform: translateY(0); }
 .nav-nickname { color: var(--theme-color); font-size: 0.9rem; text-align: center; padding: 0.5rem 0; font-weight: bold; word-break: break-all; }
 .dropdown-menu hr { border: 0; border-top: 1px solid #444; margin: 4px 0; }

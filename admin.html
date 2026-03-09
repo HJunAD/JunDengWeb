@@ -19,8 +19,8 @@
         #auth-section { text-align: center; padding: 5rem 0; }
         #auth-section p { color: #ff4444; font-size: 1.1rem; font-weight: bold; font-family: monospace;}
         
-        /* 后台面板主区 */
-        #dashboard-section { display: none; display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        /* 🚀 修复 CSS 冲突：删除了多余的 display: flex */
+        #dashboard-section { display: none; flex-direction: column; flex: 1; overflow: hidden; }
         .admin-tabs { display: flex; gap: 1rem; padding: 1.5rem; justify-content: center; background: #222; border-bottom: 1px solid #333;}
         .tab-btn { background: #111; color: #888; border: 1px solid #333; padding: 10px 25px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 1rem; font-weight: bold; letter-spacing: 1px;}
         .tab-btn.active, .tab-btn:hover { background: var(--theme-color); color: #111; border-color: var(--theme-color); box-shadow: 0 0 15px rgba(255,140,0,0.3); }
@@ -31,14 +31,12 @@
         
         #sys-msg { padding: 1rem; font-size: 0.9rem; font-weight: bold; text-align: center; font-family: "Courier New", monospace; background: #1a1a1a; border-top: 1px solid #333; flex-shrink: 0;}
 
-        /* --- 🚀 核心进化：网格展示系统 --- */
+        /* --- 网格展示系统 --- */
         .admin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
         
-        /* 数据实体卡片 */
         .admin-card { position: relative; aspect-ratio: 1; background: #111; border-radius: 8px; overflow: hidden; border: 1px solid #333; transition: 0.3s;}
         .admin-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s; }
         
-        /* 悬停浮层：显示信息与删除按钮 */
         .admin-card-overlay { 
             position: absolute; inset: 0; background: rgba(0,0,0,0.85); opacity: 0; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
@@ -50,7 +48,6 @@
         .del-btn { background: transparent; border: 2px solid #ff4444; color: #ff4444; padding: 8px 20px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-weight: bold; letter-spacing: 2px;}
         .del-btn:hover { background: #ff4444; color: #111; box-shadow: 0 0 15px rgba(255,68,68,0.5); }
 
-        /* 🚀 半透明上传加号卡片 */
         .add-card { 
             aspect-ratio: 1; border-radius: 8px; border: 2px dashed #444; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
@@ -141,27 +138,16 @@
         const msgBox = document.getElementById('sys-msg');
         let currentAdmin = null;
 
-        // 1. 站长权限验证
-        const initAuth = () => {
-            const savedUser = localStorage.getItem('jundeng_user');
-            if (savedUser) {
-                const user = JSON.parse(savedUser);
-                if (user.role === 'admin') {
-                    currentAdmin = user;
-                    document.getElementById('auth-section').style.display = 'none';
-                    document.getElementById('dashboard-section').style.display = 'flex';
-                    msgBox.style.color = '#00ff00';
-                    msgBox.innerText = `> 欢迎回来，最高指挥官 [${user.username}]`;
-                    loadPhotos(); loadMusic(); // 验证通过后加载数据
-                    return;
-                }
-            }
-            document.getElementById('auth-status').innerText = '[FATAL ERROR] 访问被拒绝：你没有站长特权。';
-            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-        };
-        initAuth();
+        // ==========================================
+        // 🚀 修复 3：使用传统 function 声明，确保在 HTML 里能调用
+        // ==========================================
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); 
+        }
 
-        // 2. 标签切换与弹窗控制
+        // 标签切换逻辑
         const tabBtns = document.querySelectorAll('.tab-btn');
         const panels = document.querySelectorAll('.form-panel');
         tabBtns.forEach(btn => {
@@ -173,17 +159,9 @@
             });
         });
 
-        const openModal = (id) => document.getElementById(id).style.display = 'flex';
-        const closeModal = (id) => {
-            document.getElementById(id).style.display = 'none';
-            document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); // 清空输入框
-        };
-
         // ==========================================
-        // 3. 动态渲染网格与新增按钮
+        // 定义拉取与写入引擎
         // ==========================================
-        
-        // 渲染追加的上传按钮卡片
         const createAddCard = (type) => {
             const card = document.createElement('div');
             card.className = 'add-card';
@@ -192,7 +170,6 @@
             return card;
         };
 
-        // 加载照片网格
         const loadPhotos = async () => {
             const grid = document.getElementById('photo-grid');
             grid.innerHTML = '';
@@ -212,11 +189,10 @@
                     card.querySelector('.del-btn').addEventListener('click', () => deleteItem('photos', photo.id));
                     grid.appendChild(card);
                 });
-                grid.appendChild(createAddCard('photo')); // 最后永远跟着一个+号
-            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = '> 照片拉取失败'; }
+                grid.appendChild(createAddCard('photo'));
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = '> 影像数据拉取失败'; }
         };
 
-        // 加载音乐网格
         const loadMusic = async () => {
             const grid = document.getElementById('music-grid');
             grid.innerHTML = '';
@@ -236,15 +212,11 @@
                     card.querySelector('.del-btn').addEventListener('click', () => deleteItem('music', song.id));
                     grid.appendChild(card);
                 });
-                grid.appendChild(createAddCard('music')); // 最后永远跟着一个+号
-            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = '> 音乐拉取失败'; }
+                grid.appendChild(createAddCard('music'));
+            } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = '> 音乐数据拉取失败'; }
         };
 
-        // ==========================================
-        // 4. 上传与抹除引擎 (直连云端)
-        // ==========================================
-
-        // 执行删除
+        // 抹除引擎
         const deleteItem = async (type, id) => {
             if(!confirm('🚨 系统警告：此操作不可逆，确定将此记录从云端抹除？')) return;
             msgBox.style.color = 'var(--theme-color)'; msgBox.innerText = '> 正在执行抹除指令...';
@@ -255,12 +227,12 @@
                 });
                 if(res.ok) {
                     msgBox.style.color = '#00ff00'; msgBox.innerText = '> 目标已成功抹除。';
-                    type === 'photos' ? loadPhotos() : loadMusic(); // 自动刷新网格
+                    type === 'photos' ? loadPhotos() : loadMusic();
                 } else { throw new Error(await res.json().error); }
             } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = `> 失败：${e.message}`; }
         };
 
-        // 执行上传：影像
+        // 上传按钮绑定
         document.getElementById('submit-photo').addEventListener('click', async () => {
             const url = document.getElementById('photo-url').value.trim();
             const caption = document.getElementById('photo-caption').value.trim();
@@ -273,12 +245,11 @@
                 });
                 if(res.ok) {
                     msgBox.style.color = '#00ff00'; msgBox.innerText = `> 影像写入成功。`;
-                    closeModal('modal-photo'); loadPhotos(); // 关闭弹窗并刷新网格
+                    closeModal('modal-photo'); loadPhotos(); 
                 } else { throw new Error(await res.json().error); }
             } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = `> 失败：${e.message}`; }
         });
 
-        // 执行上传：音乐
         document.getElementById('submit-music').addEventListener('click', async () => {
             const singer = document.getElementById('music-singer').value.trim(), title = document.getElementById('music-title').value.trim();
             const bvid = document.getElementById('music-bvid').value.trim(), cover = document.getElementById('music-cover').value.trim(), desc = document.getElementById('music-desc').value.trim();
@@ -291,10 +262,37 @@
                 });
                 if(res.ok) {
                     msgBox.style.color = '#00ff00'; msgBox.innerText = `> 唱片上架成功。`;
-                    closeModal('modal-music'); loadMusic(); // 关闭弹窗并刷新网格
+                    closeModal('modal-music'); loadMusic();
                 } else { throw new Error(await res.json().error); }
             } catch (e) { msgBox.style.color = '#ff4444'; msgBox.innerText = `> 失败：${e.message}`; }
         });
+
+        // ==========================================
+        // 🚀 修复 1：把启动引擎移到所有函数的最底部，避免 JS 崩溃
+        // ==========================================
+        const initAuth = () => {
+            const savedUser = localStorage.getItem('jundeng_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                if (user.role === 'admin') {
+                    currentAdmin = user;
+                    document.getElementById('auth-section').style.display = 'none';
+                    // 🚀 修复 2：将展示属性改为 flex，配合 CSS 排版
+                    document.getElementById('dashboard-section').style.display = 'flex';
+                    msgBox.style.color = '#00ff00';
+                    msgBox.innerText = `> 欢迎回来，最高指挥官 [${user.username}]`;
+                    
+                    // 现在拉取函数都在上面定义好了，绝对不会报错了！
+                    loadPhotos(); loadMusic(); 
+                    return;
+                }
+            }
+            document.getElementById('auth-status').innerText = '[FATAL ERROR] 访问被拒绝：你没有站长特权。';
+            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        };
+        
+        // 最后启动！
+        initAuth();
 
     </script>
 </body>

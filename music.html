@@ -53,9 +53,10 @@
     <div id="music-modal" class="lightbox">
         <span class="close-lightbox" id="close-music-modal">&times;</span>
         
-        <div class="music-modal-content">
+        <div class="music-modal-content" style="display: flex; flex-direction: row; position: relative;">
             <div id="modal-blur-bg" class="modal-blur-bg"></div>
-            <div class="modal-content-wrapper">
+            
+            <div class="modal-content-wrapper" style="flex: 1;">
                 <div class="modal-left">
                     <div class="iframe-container">
                         <iframe id="bili-player" referrerpolicy="no-referrer" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
@@ -66,21 +67,21 @@
                     <p id="modal-song-desc">这是歌曲描述。</p>
                 </div>
             </div>
+
+            <div class="local-comment-panel" id="music-comment-panel">
+                <div class="panel-header">
+                    <h3>💬 灵魂共鸣</h3>
+                    <button class="close-panel-btn" id="close-music-panel">&times;</button>
+                </div>
+                <div class="cmt-list" id="music-cmt-list"></div>
+                <div class="cmt-input-group">
+                    <textarea id="music-cmt-input" placeholder="留下你的声音..."></textarea>
+                    <button class="cmt-send-btn" id="music-cmt-send">发射 (SEND)</button>
+                </div>
+            </div>
+
             <button class="comment-icon-btn" id="music-comment-trigger" title="灵魂共鸣">💬</button>
         </div>
-
-        <div class="local-comment-panel" id="music-comment-panel">
-            <div class="panel-header">
-                <h3>💬 灵魂共鸣</h3>
-                <button class="close-panel-btn" id="close-music-panel">&times;</button>
-            </div>
-            <div class="cmt-list" id="music-cmt-list"></div>
-            <div class="cmt-input-group">
-                <textarea id="music-cmt-input" placeholder="留下你的声音..."></textarea>
-                <button class="cmt-send-btn" id="music-cmt-send">发射 (SEND)</button>
-            </div>
-        </div>
-
     </div>
 
     <footer>

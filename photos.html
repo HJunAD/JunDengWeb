@@ -46,23 +46,27 @@
     <div id="lightbox" class="lightbox">
         <span class="close-lightbox" id="close-photo-modal">&times;</span>
         
-        <div class="lightbox-wrapper">
-            <img class="lightbox-content" id="lightbox-img">
-            <div id="lightbox-caption"></div>
+        <div class="photo-flex-container" style="display: flex; flex-direction: row; align-items: stretch; justify-content: center; max-width: 90vw; height: 85vh; margin: auto;">
             
-            <button class="comment-icon-btn" id="photo-comment-trigger" title="摄影交流">💬</button>
-        </div>
+            <div class="lightbox-wrapper" style="position: relative; display: flex; align-items: center;">
+                <img class="lightbox-content" id="lightbox-img" style="max-height: 85vh; max-width: 100%; object-fit: contain;">
+                <div id="lightbox-caption" style="position: absolute; bottom: -40px; width: 100%; text-align: center; color: #ccc;"></div>
+                
+                <button class="comment-icon-btn" id="photo-comment-trigger" title="摄影交流">💬</button>
+            </div>
 
-        <div class="local-comment-panel" id="photo-comment-panel">
-            <div class="panel-header">
-                <h3>💬 摄影交流</h3>
-                <button class="close-panel-btn" id="close-photo-panel">&times;</button>
+            <div class="local-comment-panel" id="photo-comment-panel">
+                <div class="panel-header">
+                    <h3>💬 摄影交流</h3>
+                    <button class="close-panel-btn" id="close-photo-panel">&times;</button>
+                </div>
+                <div class="cmt-list" id="photo-cmt-list"></div>
+                <div class="cmt-input-group">
+                    <textarea id="photo-cmt-input" placeholder="这张照片让你想到了什么..."></textarea>
+                    <button class="cmt-send-btn" id="photo-cmt-send">发射 (SEND)</button>
+                </div>
             </div>
-            <div class="cmt-list" id="photo-cmt-list"></div>
-            <div class="cmt-input-group">
-                <textarea id="photo-cmt-input" placeholder="这张照片让你想到了什么..."></textarea>
-                <button class="cmt-send-btn" id="photo-cmt-send">发射 (SEND)</button>
-            </div>
+
         </div>
     </div>
 

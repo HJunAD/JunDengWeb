@@ -762,3 +762,47 @@ footer {
     color: #111;                         /* 悬停时文字变成深色，产生强对比 */
     box-shadow: 0 0 15px rgba(255,140,0,0.3); 
 }
+
+.comment-icon-btn {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--theme-color); color: #111;
+    border: none; font-size: 1.2rem; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100;
+    display: flex; justify-content: center; align-items: center;
+    transition: transform 0.3s, background 0.3s, opacity 0.3s;
+}
+.comment-icon-btn:hover { transform: scale(1.15); background: #e67e22; }
+
+/* 展开评论时，隐藏图标避免遮挡 */
+.comment-icon-btn.hidden { opacity: 0; pointer-events: none; transform: scale(0.5); }
+
+/* 🎵 音乐图标：整个弹窗的最右下角 */
+#music-comment-trigger { position: absolute; bottom: 20px; right: 20px; }
+
+/* 📷 照片图标：照片的外面右下角，底部同一水平线 */
+#photo-comment-trigger { position: absolute; bottom: 0; right: -65px; }
+
+/* --- 核心魔法：参与排版的评论面板 --- */
+.local-comment-panel {
+    width: 0;          /* 🚀 默认不占任何宽度 */
+    opacity: 0;        /* 🚀 默认完全透明 */
+    overflow: hidden;  /* 🚀 把内部文字藏起来 */
+    background: #1a1a1a;
+    border-left: 0px solid #333;
+    display: flex; flex-direction: column;
+    /* 宽度和透明度的平滑过渡，实现“挤压”动画 */
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+
+/* 展开状态：真正参与排版，占据 380px 物理宽度 */
+.local-comment-panel.show {
+    width: 380px; 
+    opacity: 1;
+    border-left: 1px solid #333;
+}
+
+/* 手机端占满整个屏幕 */
+@media (max-width: 900px) {
+    .local-comment-panel.show { width: 100%; }
+    #photo-comment-trigger { right: 10px; bottom: 10px; }
+}

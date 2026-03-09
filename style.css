@@ -654,54 +654,111 @@ footer {
 .auth-msg { margin-top: 1rem; font-size: 0.85rem; font-weight: bold; min-height: 20px; }
 
 /* ==========================================
-   全栈进化：评论图标与绝对定位面板
+   全栈进化：评论面板内部 UI (极简高定版)
    ========================================== */
 
-/* 统一的悬浮圆形评论图标 */
-.comment-icon-btn {
-    width: 46px; height: 46px; border-radius: 50%;
-    background: var(--theme-color); color: #111;
-    border: none; font-size: 1.2rem; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100;
-    display: flex; justify-content: center; align-items: center;
-    transition: transform 0.3s, background 0.3s;
-}
-.comment-icon-btn:hover { transform: scale(1.15); background: #e67e22; }
-
-/* 🎵 音乐弹窗：图标放在整个弹窗的最右下角 */
-#music-comment-trigger { position: absolute; bottom: 20px; right: 20px; }
-
-/* 📷 照片弹窗底层居中逻辑 */
-.lightbox {
-    display: none; /* 默认隐藏，JS中用 flex 打开 */
-    justify-content: center; align-items: center; /* 完美居中 */
-    flex-direction: column;
+/* 1. 标题区与橙色细线 */
+.panel-header { 
+    padding: 1.2rem 1.5rem; 
+    border-bottom: 1px solid var(--theme-color); /* 🚀 橙色细线，隔离标题与评论 */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
 }
 
-/* 照片与文字的贴身包装盒 */
-.lightbox-wrapper {
-    position: relative;
-    display: inline-block;
-    max-width: 75vw; /* 留出右侧空间放面板 */
-    max-height: 85vh;
-    text-align: center;
+.panel-header h3 { 
+    color: var(--theme-color); 
+    font-size: 1.1rem; 
+    margin: 0;
+    letter-spacing: 1px; 
 }
 
-/* 📷 照片弹窗：图标放在照片外面右下角，且底部同一水平线 */
-#photo-comment-trigger {
-    position: absolute;
-    bottom: 0px;      /* 底部绝对对齐！ */
-    right: -65px;     /* 刚好移出照片外部！ */
+/* 2. 右上方：变大的橙色关闭按钮（视觉绝对居中对称） */
+.close-panel-btn { 
+    background: none; 
+    border: none; 
+    color: var(--theme-color); /* 🚀 变橙色 */
+    font-size: 2.2rem;         /* 🚀 变大 */
+    width: 32px;               /* 锁定宽高，配合 flex 实现 X 号的绝对居中对称 */
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; 
+    transition: transform 0.3s, color 0.3s; 
+    line-height: 1;
+    padding-bottom: 4px;       /* 微调字符重心的视觉垂直居中 */
 }
 
-/* 手机端适配：图标移到照片内部防遮挡 */
-@media (max-width: 768px) { #photo-comment-trigger { right: 10px; bottom: 10px; } }
-
-/* --- 侧边滑出的独立评论面板 (防弹版) --- */
-.local-comment-panel {
-    position: absolute; top: 0; right: -400px; width: 400px; height: 100%;
-    background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(10px);
-    border-left: 1px solid #333; display: flex; flex-direction: column;
-    z-index: 1000; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.close-panel-btn:hover { 
+    color: #fff;               /* 悬停反白更醒目 */
+    transform: rotate(90deg) scale(1.1); 
 }
-.local-comment-panel.show { right: 0; }
+
+/* 3. 评论列表区 (利用 flex: 1 把它撑开，把输入框死死挤到最下方) */
+.cmt-list { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 1.5rem; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem; 
+}
+
+.cmt-item { display: flex; gap: 10px; border-bottom: 1px solid #222; padding-bottom: 1rem; }
+.cmt-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #444; }
+.cmt-info { flex: 1; }
+.cmt-user-line { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.cmt-name { color: var(--theme-color); font-weight: bold; font-size: 0.85rem; }
+.cmt-ip { color: #666; font-size: 0.7rem; }
+.cmt-text { color: #ddd; font-size: 0.9rem; line-height: 1.4; }
+
+/* 4. 底部评论输入区 */
+.cmt-input-group { 
+    padding: 1.5rem; 
+    background: #1a1a1a; 
+    border-top: 1px solid #333; /* 仅作为输入区和列表的暗色边界 */
+}
+
+.cmt-input-group textarea { 
+    width: 100%; 
+    height: 80px; 
+    background: #111; 
+    border: 1px solid #333; 
+    color: #fff;                /* 🚀 打出来的字是纯白色！阅读体验更好 */
+    padding: 12px; 
+    border-radius: 4px; 
+    resize: none; 
+    outline: none; 
+    margin-bottom: 12px; 
+    font-size: 0.95rem; 
+    transition: border-color 0.3s; 
+}
+
+.cmt-input-group textarea:focus { 
+    border-color: var(--theme-color); 
+}
+
+.cmt-input-group textarea::placeholder { 
+    color: #666; 
+}
+
+/* 5. 极简空心发送按钮 */
+.cmt-send-btn { 
+    width: 100%; 
+    background: transparent;             /* 🚀 空心透明底色 */
+    color: var(--theme-color);           /* 🚀 橙色文字 */
+    border: 1px solid var(--theme-color);/* 🚀 橙色边框 */
+    padding: 10px; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    letter-spacing: 2px; 
+}
+
+.cmt-send-btn:hover { 
+    background: var(--theme-color);      /* 🚀 悬停变成实心橙色 */
+    color: #111;                         /* 悬停时文字变成深色，产生强对比 */
+    box-shadow: 0 0 15px rgba(255,140,0,0.3); 
+}

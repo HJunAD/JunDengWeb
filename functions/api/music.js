@@ -1,62 +1,72 @@
-export async function onRequestGet(context) {
-  try {
-    const supabaseUrl = context.env.SUPABASE_URL;
-    const supabaseKey = context.env.SUPABASE_ANON_KEY;
+// ==========================================
+// 音乐 API 枢纽 (包含拉取、上传与安全抹除)
+// ==========================================
 
-    // 2. ⚠️ 这里改成了去 songs 表里拿数据
-    const response = await fetch(`${supabaseUrl}/rest/v1/songs?select=*&order=created_at.desc`, {
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`
-      }
+// 辅助函数：核实站长权限
+async function verifyAdmin(username, supabaseUrl, supabaseKey) {
+    if (!username) return false;
+    const res = await fetch(`${supabaseUrl}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=role`, {
+        headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
     });
-
-    const data = await response.json();
-    
-    return new Response(JSON.stringify(data), {
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-  }
+    const users = await res.json();
+    return users.length > 0 && users[0].role === 'admin';
 }
 
+// 1. 获取音乐 (所有人均可)
+export async function onRequestGet(context) {
+    const { env } = context;
+    try {
+        const res = await fetch(`${env.SUPABASE_URL}/rest/v1/songs?select=*&order=id.desc`, { // 如果你的表名不是 songs 请修改这里
+            headers: { "apikey": env.SUPABASE_ANON_KEY, "Authorization": `Bearer ${env.SUPABASE_ANON_KEY}` }
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+    } catch (e) { return new Response(JSON.stringify({ error: e.message }), { status: 500 }); }
+}
+
+// 2. 上架音乐 (仅限站长)
 export async function onRequestPost(context) {
-  try {
-    const body = await context.request.json();
+    const { request, env } = context;
+    try {
+        const body = await request.json();
+        
+        // 🚨 核心安全防御
+        const isAdmin = await verifyAdmin(body.admin_user, env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        if (!isAdmin) return new Response(JSON.stringify({ error: "非法越权：你不是系统站长！" }), { status: 403 });
 
-    if (body.password !== context.env.ADMIN_PASSWORD) {
-      return new Response(JSON.stringify({ error: "口令错误，拒绝访问！" }), { status: 401 });
-    }
+        const res = await fetch(`${env.SUPABASE_URL}/rest/v1/songs`, { // 如果你的表名不是 songs 请修改这里
+            method: "POST",
+            headers: { "apikey": env.SUPABASE_ANON_KEY, "Authorization": `Bearer ${env.SUPABASE_ANON_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+            body: JSON.stringify({ 
+                singer: body.singer, title: body.title, 
+                bvid: body.bvid, cover_url: body.cover_url, description: body.description 
+            })
+        });
 
-    const supabaseUrl = context.env.SUPABASE_URL;
-    const supabaseKey = context.env.SUPABASE_ANON_KEY;
+        if (!res.ok) throw new Error("写入数据库失败");
+        return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+    } catch (e) { return new Response(JSON.stringify({ error: e.message }), { status: 500 }); }
+}
 
-    const insertData = {
-      singer: body.singer,
-      title: body.title,
-      bvid: body.bvid,
-      cover_url: body.cover_url,
-      description: body.description
-    };
+// 3. 抹除音乐 (仅限站长)
+export async function onRequestDelete(context) {
+    const { request, env } = context;
+    try {
+        const body = await request.json();
+        
+        // 🚨 核心安全防御
+        const isAdmin = await verifyAdmin(body.admin_user, env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        if (!isAdmin) return new Response(JSON.stringify({ error: "非法越权：你没有抹除权限！" }), { status: 403 });
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/songs`, {
-      method: "POST",
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify(insertData)
-    });
+        if (!body.id) throw new Error("缺少要抹除的目标 ID");
 
-    if (!response.ok) throw new Error("数据库写入失败");
+        // 呼叫 Supabase 执行物理删除
+        const res = await fetch(`${env.SUPABASE_URL}/rest/v1/songs?id=eq.${body.id}`, { // 如果你的表名不是 songs 请修改这里
+            method: "DELETE",
+            headers: { "apikey": env.SUPABASE_ANON_KEY, "Authorization": `Bearer ${env.SUPABASE_ANON_KEY}` }
+        });
 
-    return new Response(JSON.stringify({ success: true, message: "音乐上架成功！前台已自动生成标签。" }), {
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-  }
+        if (!res.ok) throw new Error("云端抹除失败");
+        return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+    } catch (e) { return new Response(JSON.stringify({ error: e.message }), { status: 500 }); }
 }

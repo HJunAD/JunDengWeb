@@ -563,11 +563,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 全栈重构：独立评论模块引擎 (修复关闭BUG版)
+// 全栈重构：独立评论模块引擎 (终极防弹修复版)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 拉取评论 ---
+    // --- 核心拉取数据 ---
     const loadComments = async (targetId, listElement) => {
         listElement.innerHTML = '<p style="text-align:center;color:#666;margin-top:20px;">> 打捞评论中...</p>';
         try {
@@ -583,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { listElement.innerHTML = '<p style="text-align:center;color:#ff4444;">网络波动，打捞失败。</p>'; }
     };
 
-    // --- 发射评论 ---
+    // --- 核心发射数据 ---
     const sendComment = async (targetId, inputElement, listElement) => {
         const savedUser = localStorage.getItem('jundeng_user');
         if (!savedUser) { document.getElementById('auth-modal').style.display = 'flex'; return; }
@@ -601,69 +601,113 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ========================================
-    // 📷 照片弹窗 (解决关不掉和评论不出的 BUG)
+    // 📷 照片弹窗 (修复 ❌ 失效与发送失效 BUG)
     // ========================================
     const lightbox = document.getElementById('lightbox');
-    const closePhotoModalBtn = document.getElementById('close-photo-modal');
+    // 增强兼容性：就算漏了 ID 也能抓到 ❌ 按钮
+    const closePhotoModalBtn = document.getElementById('close-photo-modal') || document.querySelector('#lightbox .close-lightbox');
     const photoTrigger = document.getElementById('photo-comment-trigger');
     const photoPanel = document.getElementById('photo-comment-panel');
     const closePhotoPanel = document.getElementById('close-photo-panel');
     const photoSendBtn = document.getElementById('photo-cmt-send');
 
-    // 1. 强制修复：关闭灯箱的逻辑
     const closePhotoLightbox = () => {
         if(lightbox) lightbox.style.display = 'none';
         if(photoPanel) photoPanel.classList.remove('show');
-        if(photoTrigger) photoTrigger.classList.remove('hidden'); // ✨ 新增：恢复图标
+        if(photoTrigger) photoTrigger.classList.remove('hidden');
     };
-    
-    // 点击黑底关闭 (只判断最外层，不影响里面元素)
+
+    // 绑定关闭 ❌
+    if (closePhotoModalBtn) {
+        closePhotoModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closePhotoLightbox();
+        });
+    }
+
+    // 黑底关闭逻辑
     if (lightbox) {
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closePhotoLightbox();
         });
     }
 
-    // 2. 照片评论面板唤醒与发送
+    // 照片评论交互
     if (photoTrigger && photoPanel) {
-        photoTrigger.addEventListener('click', () => {
+        photoTrigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // 🚀 阻断幽灵点击 BUG
             const imgSrc = document.getElementById('lightbox-img').src;
             photoPanel.classList.add('show');
-            photoTrigger.classList.add('hidden'); // ✨ 新增：隐藏图标
+            photoTrigger.classList.add('hidden');
             loadComments(imgSrc, document.getElementById('photo-cmt-list'));
         });
-        closePhotoPanel.addEventListener('click', () => {
+        closePhotoPanel.addEventListener('click', (e) => {
+            e.stopPropagation();
             photoPanel.classList.remove('show');
-            photoTrigger.classList.remove('hidden'); // ✨ 新增：恢复图标
+            photoTrigger.classList.remove('hidden');
         });
-        // ...发送评论逻辑保持不变...
+        if (photoSendBtn) {
+            photoSendBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const imgSrc = document.getElementById('lightbox-img').src;
+                sendComment(imgSrc, document.getElementById('photo-cmt-input'), document.getElementById('photo-cmt-list'));
+            });
+        }
     }
-    
 
     // ========================================
-    // 🎵 音乐弹窗逻辑
+    // 🎵 音乐弹窗 (修复一点就消失 BUG)
     // ========================================
+    const musicModal = document.getElementById('music-modal');
     const musicTrigger = document.getElementById('music-comment-trigger');
     const musicPanel = document.getElementById('music-comment-panel');
     const closeMusicPanel = document.getElementById('close-music-panel');
     const musicSendBtn = document.getElementById('music-cmt-send');
+    const closeMusicModalBtn = document.getElementById('close-music-modal') || document.querySelector('#music-modal .close-lightbox');
 
+    const closeMusicLightbox = () => {
+        if(musicModal) musicModal.style.display = 'none';
+        if(musicPanel) musicPanel.classList.remove('show');
+        if(musicTrigger) musicTrigger.classList.remove('hidden');
+        const biliPlayer = document.getElementById('bili-player');
+        if(biliPlayer) biliPlayer.src = ""; 
+    };
+
+    // 绑定关闭 ❌
+    if (closeMusicModalBtn) {
+        closeMusicModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeMusicLightbox();
+        });
+    }
+
+    // 黑底关闭逻辑
+    if (musicModal) {
+        musicModal.addEventListener('click', (e) => {
+            if (e.target === musicModal) closeMusicLightbox();
+        });
+    }
+
+    // 音乐评论交互
     if (musicTrigger && musicPanel) {
-        musicTrigger.addEventListener('click', () => {
+        musicTrigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // 🚀 核心修复：斩断点击穿透，面板再也不会闪退了！
             const bvid = new URL(document.getElementById('bili-player').src).searchParams.get('bvid');
             musicPanel.classList.add('show');
-            musicTrigger.classList.add('hidden'); // ✨ 新增：隐藏图标
+            musicTrigger.classList.add('hidden');
             loadComments(bvid, document.getElementById('music-cmt-list'));
         });
-        closeMusicPanel.addEventListener('click', () => {
+        closeMusicPanel.addEventListener('click', (e) => {
+            e.stopPropagation();
             musicPanel.classList.remove('show');
-            musicTrigger.classList.remove('hidden'); // ✨ 新增：恢复图标
+            musicTrigger.classList.remove('hidden');
         });
-        // ...发送评论逻辑保持不变...
-        
-        document.getElementById('close-music-modal').addEventListener('click', () => {
-            musicPanel.classList.remove('show');
-            musicTrigger.classList.remove('hidden'); // ✨ 确保关闭弹窗时恢复图标
-        });
+        if (musicSendBtn) {
+            musicSendBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bvid = new URL(document.getElementById('bili-player').src).searchParams.get('bvid');
+                sendComment(bvid, document.getElementById('music-cmt-input'), document.getElementById('music-cmt-list'));
+            });
+        }
     }
 });
